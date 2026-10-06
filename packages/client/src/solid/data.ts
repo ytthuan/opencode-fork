@@ -684,6 +684,9 @@ export function createData(config: CreateDataInput) {
             }),
         )
         return
+      case "session.goal.changed":
+        refresh(() => result.session.sync(event.data.sessionID))
+        return
       case "session.renamed": {
         // Preserve the live title when it races the session's initial read.
         refresh(() => {

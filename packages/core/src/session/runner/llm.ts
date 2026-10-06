@@ -17,6 +17,7 @@ import { SessionModelRequest } from "../model-request.js"
 import { SessionModelTransport } from "../model-transport.js"
 import { SessionMessage } from "../message.js"
 import { SessionSchema } from "../schema.js"
+import { SessionGoal } from "../goal.js"
 import { SessionStore } from "../store.js"
 import { SessionMessageTable } from "../sql.js"
 import { SessionTitle } from "../title.js"
@@ -57,6 +58,7 @@ const layer = Layer.effect(
       let continuing = input.continuation !== undefined
       let step = input.continuation?.step ?? 1
       let entering = true
+      let goalDriving = false
       const promotable = input.promotable ?? "input"
       if (!force && !continuing) {
         const pending = yield* SessionInbox.nextPromotable(db, sessionID, "input")
@@ -158,8 +160,18 @@ const layer = Layer.effect(
                 force = false
                 continue
               }
-              if (!force && !continuing && (!pending || (pending.delivery === "queue" && promotable === "steer")))
-                return DrainResult.Complete()
+              if (goalDriving && !pending) {
+                const goal = yield* SessionGoal.get(db, sessionID).pipe(Effect.orDie)
+                if (!goal || goal.status !== "active" || !SessionGoal.isArmed(sessionID, goal))
+                  return DrainResult.Complete()
+              }
+              if (!force && !continuing && (!pending || (pending.delivery === "queue" && promotable === "steer"))) {
+                if (promotable === "steer" || !(yield* SessionGoal.nextRound(db, bus, sessionID)))
+                  return DrainResult.Complete()
+                force = true
+                goalDriving = true
+                step = 1
+              }
               const ready = yield* restore(
                 Effect.gen(function* () {
                   const selected = yield* prepareContext(sessionID)
@@ -176,7 +188,19 @@ const layer = Layer.effect(
                       onlyIfMissing: true,
                     })
                   if (promoted > 0) step = 1
-                  return { _tag: "Ready" as const, context: yield* context.load(selected) }
+                  const loaded = yield* context.load(selected)
+                  if (promoted > 0) {
+                    const input = loaded.messages.findLast(
+                      (message) => message.type === "user" || message.type === "synthetic",
+                    )
+                    goalDriving = input?.metadata?.source === "goal"
+                    if (goalDriving) {
+                      const goal = yield* SessionGoal.get(db, sessionID).pipe(Effect.orDie)
+                      if (!goal || goal.status !== "active" || !SessionGoal.isArmed(sessionID, goal))
+                        return DrainResult.Complete()
+                    }
+                  }
+                  return { _tag: "Ready" as const, context: loaded }
                 }),
               )
               if (ready) return ready
@@ -292,7 +316,22 @@ const layer = Layer.effect(
             recoverContinuation = false
           }),
         })
-        if (completed !== undefined) return completed
+        if (completed !== undefined) {
+          if (stepLimitReached) {
+            const goal = yield* SessionGoal.get(db, sessionID).pipe(Effect.orDie)
+            if (goal?.status === "active" && SessionGoal.isArmed(sessionID, goal))
+              yield* SessionGoal.update(db, bus, sessionID, {
+                id: goal.id,
+                revision: goal.revision,
+                action: "block",
+                reason: "Agent step allowance reached. Review progress and explicitly resume.",
+              }).pipe(
+                Effect.catchTag("Session.GoalConflict", () => Effect.void),
+                Effect.orDie,
+              )
+          }
+          return completed
+        }
       }
     })
 

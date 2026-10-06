@@ -116,6 +116,7 @@ const layer = Layer.effect(
                   yield* db
                     .update(SessionTable)
                     .set({
+                      goal: input.data.info.goal ?? null,
                       cost: input.data.info.cost,
                       tokens_input: input.data.info.tokens.input,
                       tokens_output: input.data.info.tokens.output,
@@ -181,6 +182,16 @@ function sanitize(data: Data): Data {
   return {
     info: {
       ...data.info,
+      goal: data.info.goal
+        ? {
+            ...data.info.goal,
+            objective: redact("goal-objective", data.info.goal.id, data.info.goal.objective),
+            reason:
+              data.info.goal.reason === undefined
+                ? undefined
+                : redact("goal-reason", data.info.goal.id, data.info.goal.reason),
+          }
+        : undefined,
       title: data.info.title === undefined ? undefined : redact("session-title", data.info.id, data.info.title),
       metadata:
         data.info.metadata && Object.keys(data.info.metadata).length > 0

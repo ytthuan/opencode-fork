@@ -1,6 +1,7 @@
 export * as Session from "./session.js"
 
 import { Schema } from "effect"
+import { SessionGoal } from "./session-goal.js"
 import { Agent } from "./agent.js"
 import { Location } from "./location.js"
 import { Model } from "./model.js"
@@ -53,6 +54,7 @@ export const Info = Schema.Struct({
   location: Location.Ref,
   subpath: RelativePath.pipe(optional),
   metadata: Metadata.pipe(optional),
+  goal: SessionGoal.Info.pipe(optional),
   /** Evaluated after the agent's rules; the last matching rule wins. */
   permissions: Permission.Ruleset.pipe(optional),
   revert: Revert.pipe(optional),

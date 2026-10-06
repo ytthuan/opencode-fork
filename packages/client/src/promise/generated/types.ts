@@ -36,6 +36,10 @@ export type PluginFeatures = { server?: true; tui?: true; rpc?: true }
 
 export type PluginState = { status: "active" } | { status: "failed"; error: string; ref?: string }
 
+export type SessionGoalObjective = string
+
+export type SessionGoalStatus = "active" | "paused" | "blocked" | "complete"
+
 export type SessionForkBoundary = { type: "before"; messageID: string } | { type: "through"; messageID: string }
 
 export type MoneyUSD = number
@@ -500,6 +504,16 @@ export type ConfigProviderSettings = {
 export type PermissionRule = { action: string; resource: string; effect: PermissionEffect }
 
 export type PluginInfo = { id?: string; source: PluginSource; features: PluginFeatures; state: PluginState }
+
+export type SessionGoalInfo = {
+  id: string
+  revision: number
+  objective: SessionGoalObjective
+  status: SessionGoalStatus
+  rounds: number
+  maxRounds: number
+  reason?: string
+}
 
 export type SessionRevert = { messageID: string; partID?: string; snapshot?: string; files?: Array<FileDiffInfo> }
 
@@ -1232,6 +1246,13 @@ export type McpResourcesChanged = {
   data: { server: string }
 }
 
+export type SessionGoalChange =
+  | { type: "created"; id: string; objective: SessionGoalObjective; maxRounds?: number }
+  | { type: "edited"; objective?: SessionGoalObjective; maxRounds?: number }
+  | { type: "status"; status: SessionGoalStatus; reason?: string; maxRounds?: number }
+  | { type: "cleared" }
+  | { type: "round-started" }
+
 export type SessionMoved = {
   id: string
   created: number
@@ -1848,6 +1869,16 @@ export type SessionForked = {
   }
 }
 
+export type SessionGoalChanged = {
+  id: string
+  created: number
+  metadata?: { [x: string]: any }
+  type: "session.goal.changed"
+  durable: { aggregateID: string; seq: number; version: 1 }
+  location?: LocationRef
+  data: { sessionID: string; previousID: string | null; previousRevision: number; change: SessionGoalChange }
+}
+
 export type SessionToolSuccess = {
   id: string
   created: number
@@ -2006,6 +2037,7 @@ export type SessionInfo = {
   title?: string
   subpath?: string
   metadata?: SessionMetadata
+  goal?: SessionGoalInfo
   permissions?: PermissionRuleset
   revert?: SessionRevert
   location: LocationPublicRef
@@ -2367,6 +2399,7 @@ export type SessionMessagesResponse = {
 }
 
 export type SessionEventDurable =
+  | SessionGoalChanged
   | SessionCreated
   | SessionAgentSelected
   | SessionModelSelected
@@ -2430,6 +2463,7 @@ export type V2Event =
   | ProviderUpdated
   | ModelUpdated
   | AgentUpdated
+  | SessionGoalChanged
   | SessionCreated
   | SessionAgentSelected
   | SessionModelSelected
@@ -2556,10 +2590,6 @@ export type AgentNotFoundError = {
 export const isAgentNotFoundError = (value: unknown): value is AgentNotFoundError =>
   typeof value === "object" && value !== null && "_tag" in value && value["_tag"] === "AgentNotFoundError"
 
-export type InvalidCursorError = { readonly _tag: "InvalidCursorError"; readonly message: string }
-export const isInvalidCursorError = (value: unknown): value is InvalidCursorError =>
-  typeof value === "object" && value !== null && "_tag" in value && value["_tag"] === "InvalidCursorError"
-
 export type SessionNotFoundError = {
   readonly _tag: "SessionNotFoundError"
   readonly sessionID: string
@@ -2575,6 +2605,10 @@ export type ConflictError = {
 }
 export const isConflictError = (value: unknown): value is ConflictError =>
   typeof value === "object" && value !== null && "_tag" in value && value["_tag"] === "ConflictError"
+
+export type InvalidCursorError = { readonly _tag: "InvalidCursorError"; readonly message: string }
+export const isInvalidCursorError = (value: unknown): value is InvalidCursorError =>
+  typeof value === "object" && value !== null && "_tag" in value && value["_tag"] === "InvalidCursorError"
 
 export type UnknownError = {
   readonly _tag: "UnknownError"
@@ -2813,6 +2847,72 @@ export type PluginUpdateInput = {
 }
 
 export type PluginUpdateOutput = void
+
+export type SessionGoalInput = { readonly sessionID: { readonly sessionID: string }["sessionID"] }
+
+export type SessionGoalOutput = SessionGoalInfo | null
+
+export type SessionCreateGoalInput = {
+  readonly sessionID: { readonly sessionID: string }["sessionID"]
+  readonly objective: { readonly objective: string; readonly maxRounds?: number }["objective"]
+  readonly maxRounds?: { readonly objective: string; readonly maxRounds?: number }["maxRounds"]
+}
+
+export type SessionCreateGoalOutput = SessionGoalInfo
+
+export type SessionUpdateGoalInput = {
+  readonly sessionID: { readonly sessionID: string }["sessionID"]
+  readonly id: {
+    readonly id: string
+    readonly revision: number
+    readonly action: "update" | "pause" | "resume" | "complete" | "block" | "clear"
+    readonly objective?: string
+    readonly maxRounds?: number
+    readonly reason?: string
+  }["id"]
+  readonly revision: {
+    readonly id: string
+    readonly revision: number
+    readonly action: "update" | "pause" | "resume" | "complete" | "block" | "clear"
+    readonly objective?: string
+    readonly maxRounds?: number
+    readonly reason?: string
+  }["revision"]
+  readonly action: {
+    readonly id: string
+    readonly revision: number
+    readonly action: "update" | "pause" | "resume" | "complete" | "block" | "clear"
+    readonly objective?: string
+    readonly maxRounds?: number
+    readonly reason?: string
+  }["action"]
+  readonly objective?: {
+    readonly id: string
+    readonly revision: number
+    readonly action: "update" | "pause" | "resume" | "complete" | "block" | "clear"
+    readonly objective?: string
+    readonly maxRounds?: number
+    readonly reason?: string
+  }["objective"]
+  readonly maxRounds?: {
+    readonly id: string
+    readonly revision: number
+    readonly action: "update" | "pause" | "resume" | "complete" | "block" | "clear"
+    readonly objective?: string
+    readonly maxRounds?: number
+    readonly reason?: string
+  }["maxRounds"]
+  readonly reason?: {
+    readonly id: string
+    readonly revision: number
+    readonly action: "update" | "pause" | "resume" | "complete" | "block" | "clear"
+    readonly objective?: string
+    readonly maxRounds?: number
+    readonly reason?: string
+  }["reason"]
+}
+
+export type SessionUpdateGoalOutput = SessionGoalInfo | null
 
 export type SessionListInput = {
   readonly limit?: {
@@ -3088,6 +3188,15 @@ export type SessionImportInput = {
       readonly title?: string
       readonly subpath?: string
       readonly metadata?: { readonly [x: string]: JsonValue }
+      readonly goal?: {
+        readonly id: string
+        readonly revision: number
+        readonly objective: string
+        readonly status: "active" | "paused" | "blocked" | "complete"
+        readonly rounds: number
+        readonly maxRounds: number
+        readonly reason?: string
+      }
       readonly permissions?: ReadonlyArray<{
         readonly action: string
         readonly resource: string
@@ -3425,6 +3534,15 @@ export type SessionImportInput = {
       readonly title?: string
       readonly subpath?: string
       readonly metadata?: { readonly [x: string]: JsonValue }
+      readonly goal?: {
+        readonly id: string
+        readonly revision: number
+        readonly objective: string
+        readonly status: "active" | "paused" | "blocked" | "complete"
+        readonly rounds: number
+        readonly maxRounds: number
+        readonly reason?: string
+      }
       readonly permissions?: ReadonlyArray<{
         readonly action: string
         readonly resource: string
@@ -3762,6 +3880,15 @@ export type SessionImportInput = {
       readonly title?: string
       readonly subpath?: string
       readonly metadata?: { readonly [x: string]: JsonValue }
+      readonly goal?: {
+        readonly id: string
+        readonly revision: number
+        readonly objective: string
+        readonly status: "active" | "paused" | "blocked" | "complete"
+        readonly rounds: number
+        readonly maxRounds: number
+        readonly reason?: string
+      }
       readonly permissions?: ReadonlyArray<{
         readonly action: string
         readonly resource: string

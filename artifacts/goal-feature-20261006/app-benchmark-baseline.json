@@ -1,0 +1,68 @@
+[
+  {
+    "schemaVersion": 2,
+    "runID": "2026-10-06T13-18-29-787Z-71937",
+    "name": "performance: first navigation paint > opens an unvisited session tab without a blank frame",
+    "status": "failed",
+    "expectedStatus": "passed",
+    "retry": 0,
+    "repeatEachIndex": 0,
+    "context": {
+      "project": "chromium",
+      "platform": "darwin"
+    },
+    "metrics": {
+      "summary": {
+        "samples": 5,
+        "firstDestinationObservedMs": 22,
+        "stableDestinationObservedMs": 50.700000047683716,
+        "sourceSamples": 0,
+        "blankSamples": 0,
+        "unknownSamples": 1,
+        "destinationSamples": 4
+      },
+      "samples": [
+        {
+          "observedAtMs": 5.5,
+          "source": false,
+          "destination": false,
+          "content": true,
+          "pathname": "/server/aHR0cDovLzEyNy4wLjAuMTo0Mzg5/session/ses_smoke_target",
+          "center": "Example Game: sample jump movement & sample physics analysis"
+        },
+        {
+          "observedAtMs": 22,
+          "source": false,
+          "destination": true,
+          "content": true,
+          "pathname": "/server/aHR0cDovLzEyNy4wLjAuMTo0Mzg5/session/ses_smoke_target",
+          "center": " echo lima signal foxtrot metro vector golf nova alpha hotel orbit bravo india p"
+        },
+        {
+          "observedAtMs": 34.799999952316284,
+          "source": false,
+          "destination": true,
+          "content": true,
+          "pathname": "/server/aHR0cDovLzEyNy4wLjAuMTo0Mzg5/session/ses_smoke_target",
+          "center": " echo lima signal foxtrot metro vector golf nova alpha hotel orbit bravo india p"
+        },
+        {
+          "observedAtMs": 50.700000047683716,
+          "source": false,
+          "destination": true,
+          "content": true,
+          "pathname": "/server/aHR0cDovLzEyNy4wLjAuMTo0Mzg5/session/ses_smoke_target",
+          "center": " echo lima signal foxtrot metro vector golf nova alpha hotel orbit bravo india p"
+        },
+        {
+          "observedAtMs": 67.79999995231628,
+          "source": false,
+          "destination": true,
+          "content": true,
+          "pathname": "/server/aHR0cDovLzEyNy4wLjAuMTo0Mzg5/session/ses_smoke_target",
+          "center": " echo lima signal foxtrot metro vector golf nova alpha hotel orbit bravo india p"
+        }
+      ]
+    }
+  }
+]

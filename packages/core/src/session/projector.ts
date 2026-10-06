@@ -13,6 +13,7 @@ import { SessionMessage } from "./message.js"
 import { SessionMessageUpdater } from "./message-updater.js"
 import { SessionInbox } from "./inbox.js"
 import { Workspace } from "@opencode/schema/workspace"
+import { SessionGoal } from "./goal.js"
 import { InstructionState } from "./instruction-state.js"
 import { SessionInboxTable, SessionMessageTable, SessionTable } from "./sql.js"
 import { InstructionEntry } from "./instruction-entry.js"
@@ -540,9 +541,10 @@ const layer = Layer.effectDiscard(
         )
       }),
     )
-    yield* bus.project(SessionEvent.Deleted, (event) =>
-      db.delete(SessionTable).where(eq(SessionTable.id, event.data.sessionID)).run().pipe(Effect.orDie),
-    )
+    yield* bus.project(SessionEvent.Deleted, (event) => {
+      SessionGoal.disarm(event.data.sessionID)
+      return db.delete(SessionTable).where(eq(SessionTable.id, event.data.sessionID)).run().pipe(Effect.orDie)
+    })
     yield* bus.project(SessionEvent.AgentSelected, (event) =>
       Effect.gen(function* () {
         yield* run(db, event)
@@ -572,6 +574,19 @@ const layer = Layer.effectDiscard(
         .where(eq(SessionTable.id, event.data.sessionID))
         .run()
         .pipe(Effect.orDie),
+    )
+    yield* bus.project(SessionEvent.GoalChanged, (event) =>
+      Effect.gen(function* () {
+        const current = yield* SessionGoal.get(db, event.data.sessionID).pipe(Effect.orDie)
+        if ((current?.id ?? null) !== event.data.previousID || (current?.revision ?? 0) !== event.data.previousRevision)
+          return yield* Effect.die(new SessionGoal.Conflict({ message: "Goal changed; refresh before updating." }))
+        yield* db
+          .update(SessionTable)
+          .set({ goal: SessionGoal.fold(current, event.data.change), time_updated: event.created })
+          .where(eq(SessionTable.id, event.data.sessionID))
+          .run()
+          .pipe(Effect.orDie)
+      }),
     )
     yield* bus.project(SessionEvent.MetadataUpdated, (event) =>
       db
@@ -669,8 +684,14 @@ const layer = Layer.effectDiscard(
       }),
     )
     yield* bus.project(SessionEvent.Execution.Succeeded, (event) => projectIdle(db, event))
-    yield* bus.project(SessionEvent.Execution.Failed, (event) => projectIdle(db, event))
-    yield* bus.project(SessionEvent.Execution.Interrupted, (event) => projectIdle(db, event))
+    yield* bus.project(SessionEvent.Execution.Failed, (event) => {
+      SessionGoal.disarm(event.data.sessionID)
+      return projectIdle(db, event)
+    })
+    yield* bus.project(SessionEvent.Execution.Interrupted, (event) => {
+      SessionGoal.disarm(event.data.sessionID)
+      return projectIdle(db, event)
+    })
     yield* bus.project(SessionEvent.InstructionsUpdated, (event) =>
       Effect.gen(function* () {
         yield* run(db, event)

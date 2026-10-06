@@ -113,6 +113,58 @@ export interface PluginApi<E = never> {
   readonly update: PluginUpdateOperation<E>
 }
 
+export type SessionGoalInput = { readonly sessionID: Session.ID }
+export type SessionGoalOutput = {
+  readonly id: string
+  readonly revision: number
+  readonly objective: string
+  readonly status: "active" | "paused" | "blocked" | "complete"
+  readonly rounds: number
+  readonly maxRounds: number
+  readonly reason?: string | undefined
+} | null
+export type SessionGoalOperation<E = never> = (input: SessionGoalInput) => Effect.Effect<SessionGoalOutput, E>
+
+export type SessionCreateGoalInput = {
+  readonly sessionID: Session.ID
+  readonly objective: string
+  readonly maxRounds?: number | undefined
+}
+export type SessionCreateGoalOutput = {
+  readonly id: string
+  readonly revision: number
+  readonly objective: string
+  readonly status: "active" | "paused" | "blocked" | "complete"
+  readonly rounds: number
+  readonly maxRounds: number
+  readonly reason?: string | undefined
+}
+export type SessionCreateGoalOperation<E = never> = (
+  input: SessionCreateGoalInput,
+) => Effect.Effect<SessionCreateGoalOutput, E>
+
+export type SessionUpdateGoalInput = {
+  readonly sessionID: Session.ID
+  readonly id: string
+  readonly revision: number
+  readonly action: "update" | "pause" | "resume" | "complete" | "block" | "clear"
+  readonly objective?: string | undefined
+  readonly maxRounds?: number | undefined
+  readonly reason?: string | undefined
+}
+export type SessionUpdateGoalOutput = {
+  readonly id: string
+  readonly revision: number
+  readonly objective: string
+  readonly status: "active" | "paused" | "blocked" | "complete"
+  readonly rounds: number
+  readonly maxRounds: number
+  readonly reason?: string | undefined
+} | null
+export type SessionUpdateGoalOperation<E = never> = (
+  input: SessionUpdateGoalInput,
+) => Effect.Effect<SessionUpdateGoalOutput, E>
+
 export type SessionListInput = {
   readonly limit?: number | undefined
   readonly order?: "asc" | "desc" | undefined
@@ -426,6 +478,44 @@ export type SessionLogInput = {
 }
 export type SessionLogOutput =
   | (
+      | {
+          readonly id: Event.ID
+          readonly created: number
+          readonly metadata?: { readonly [x: string]: unknown } | undefined
+          readonly type: "session.goal.changed"
+          readonly durable: { readonly aggregateID: string; readonly seq: Event.Seq; readonly version: Event.Version }
+          readonly location?:
+            | {
+                readonly directory: AbsolutePath
+                readonly workspaceID?: (string & Brand.Brand<"Workspace.ID">) | undefined
+              }
+            | undefined
+          readonly data: {
+            readonly sessionID: Session.ID
+            readonly previousID: string | null
+            readonly previousRevision: number
+            readonly change:
+              | {
+                  readonly type: "created"
+                  readonly id: string
+                  readonly objective: string
+                  readonly maxRounds?: number | undefined
+                }
+              | {
+                  readonly type: "edited"
+                  readonly objective?: string | undefined
+                  readonly maxRounds?: number | undefined
+                }
+              | {
+                  readonly type: "status"
+                  readonly status: "active" | "paused" | "blocked" | "complete"
+                  readonly reason?: string | undefined
+                  readonly maxRounds?: number | undefined
+                }
+              | { readonly type: "cleared" }
+              | { readonly type: "round-started" }
+          }
+        }
       | {
           readonly id: Event.ID
           readonly created: number
@@ -1440,6 +1530,9 @@ export type SessionViewOutput = void
 export type SessionViewOperation<E = never> = (input: SessionViewInput) => Effect.Effect<SessionViewOutput, E>
 
 export interface SessionApi<E = never> {
+  readonly goal: SessionGoalOperation<E>
+  readonly createGoal: SessionCreateGoalOperation<E>
+  readonly updateGoal: SessionUpdateGoalOperation<E>
   readonly list: SessionListOperation<E>
   readonly stats: SessionStatsOperation<E>
   readonly create: SessionCreateOperation<E>

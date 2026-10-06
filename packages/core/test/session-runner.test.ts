@@ -1,4 +1,5 @@
 import { describe, expect, test } from "bun:test"
+import { SessionGoal } from "@opencode/core/session/goal"
 import {
   AIError,
   CompactionPart,
@@ -6593,3 +6594,82 @@ describe("SessionRunnerLLM", () => {
     expect(defect.message).toBe("Tool input delta before start: call-1")
   })
 })
+
+it.effect("continues an armed goal across idle responses and blocks at its durable round limit", () =>
+  Effect.gen(function* () {
+    const s = yield* setup
+    const database = yield* Database.Service
+    const bus = yield* Bus.Service
+    yield* s.llm.always(TestLLM.text("Progress remains", "text"))
+    yield* SessionGoal.create(database.db, bus, sessionID, { objective: "Ship everything", maxRounds: 2 })
+    yield* s.session.prompt({ sessionID, text: "Start", resume: false })
+    yield* s.session.resume(sessionID)
+    expect(s.llm.requests).toHaveLength(3)
+    const goal = yield* SessionGoal.get(database.db, sessionID)
+    expect(goal?.status).toBe("blocked")
+    expect(goal?.rounds).toBe(2)
+    yield* s.session.prompt({ sessionID, text: "Ordinary follow-up", resume: false })
+    yield* s.session.resume(sessionID)
+    expect(s.llm.requests).toHaveLength(4)
+    expect((yield* SessionGoal.get(database.db, sessionID))?.status).toBe("blocked")
+  }),
+)
+
+it.effect("pause cancels goal admission while ordinary prompts remain runnable without resuming the goal", () =>
+  Effect.gen(function* () {
+    const s = yield* setup
+    yield* s.llm.always(TestLLM.text("Answered", "text"))
+    const goal = yield* SessionGoal.create(s.db, s.bus, sessionID, { objective: "Keep working", maxRounds: 2 })
+    yield* SessionGoal.update(s.db, s.bus, sessionID, { id: goal.id, revision: goal.revision, action: "pause" })
+    expect(yield* s.inbox).toHaveLength(0)
+    yield* s.runPrompt("An ordinary question")
+    expect(s.requests).toHaveLength(1)
+    expect((yield* s.session.goal(sessionID))?.status).toBe("paused")
+  }),
+)
+
+it.effect("pause during a goal request stops at the next safe boundary", () =>
+  Effect.gen(function* () {
+    const s = yield* setup
+    yield* s.llm.always(TestLLM.text("More remains", "text"))
+    const goal = yield* SessionGoal.create(s.db, s.bus, sessionID, { objective: "Keep working", maxRounds: 2 })
+    const run = yield* s.resumePaused
+    yield* SessionGoal.update(s.db, s.bus, sessionID, { id: goal.id, revision: goal.revision, action: "pause" })
+    yield* run.finish
+    expect(s.requests).toHaveLength(1)
+    expect((yield* s.session.goal(sessionID))?.status).toBe("paused")
+  }),
+)
+
+it.effect("resuming a loaded disarmed goal explicitly admits work and continues", () =>
+  Effect.gen(function* () {
+    const s = yield* setup
+    yield* s.llm.always(TestLLM.text("More remains", "text"))
+    const goal = yield* SessionGoal.create(s.db, s.bus, sessionID, { objective: "Keep working", maxRounds: 1 })
+    SessionGoal.disarm(sessionID)
+    yield* s.resume
+    expect(s.requests).toHaveLength(0)
+    yield* SessionGoal.update(s.db, s.bus, sessionID, { id: goal.id, revision: goal.revision, action: "resume" })
+    yield* s.resume
+    expect(s.requests).toHaveLength(2)
+    expect((yield* s.session.goal(sessionID))?.status).toBe("blocked")
+  }),
+)
+
+it.effect("an active goal cannot reset the agent step allowance", () =>
+  Effect.gen(function* () {
+    const s = yield* setup
+    const agents = yield* Agent.Service
+    yield* agents.transform((editor) =>
+      editor.update(Agent.ID.make("build"), (agent) => {
+        agent.steps = 1
+      }),
+    )
+    yield* s.llm.always(TestLLM.text("More remains", "text"))
+    yield* SessionGoal.create(s.db, s.bus, sessionID, { objective: "Keep working", maxRounds: 256 })
+    yield* s.resume
+    expect(s.requests).toHaveLength(1)
+    expect((yield* s.session.goal(sessionID))?.status).toBe("blocked")
+    expect((yield* s.session.goal(sessionID))?.reason).toContain("step allowance")
+  }),
+)

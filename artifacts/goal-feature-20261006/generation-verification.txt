@@ -1,0 +1,1 @@
+PASS: rerunning packages/client bun run generate leaves all generated file hashes identical.

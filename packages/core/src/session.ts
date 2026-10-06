@@ -24,6 +24,7 @@ import { App } from "./app.js"
 import { Slug } from "./util/slug.js"
 import path from "path"
 import { SessionRunner } from "./session/runner/index.js"
+import { SessionGoal } from "./session/goal.js"
 import { SessionStore } from "./session/store.js"
 import { SessionExecution } from "./session/execution.js"
 import {
@@ -116,6 +117,13 @@ export { DestinationNotFoundError, DestinationNotDirectoryError, DestinationUnav
 export { TurnRangeError }
 
 export interface Interface {
+  readonly goal: (sessionID: SessionSchema.ID) => Effect.Effect<SessionGoal.Info | null, NotFoundError>
+  readonly createGoal: (
+    input: { sessionID: SessionSchema.ID } & SessionGoal.Create,
+  ) => Effect.Effect<SessionGoal.Info, NotFoundError | SessionGoal.Conflict>
+  readonly updateGoal: (
+    input: { sessionID: SessionSchema.ID } & SessionGoal.Update,
+  ) => Effect.Effect<SessionGoal.Info | null, NotFoundError | SessionGoal.Conflict>
   readonly list: (input?: ListInput) => Effect.Effect<{
     readonly data: SessionSchema.Info[]
   }>
@@ -259,6 +267,17 @@ const layer = Layer.effect(
     const isDurableSessionEvent = Schema.is(SessionEvent.Durable)
 
     const result = Service.of({
+      goal: (sessionID) => SessionGoal.get(db, sessionID),
+      createGoal: Effect.fn("Session.createGoal")(function* (input) {
+        const goal = yield* SessionGoal.create(db, bus, input.sessionID, input)
+        yield* execution.wake(input.sessionID)
+        return goal
+      }),
+      updateGoal: Effect.fn("Session.updateGoal")(function* (input) {
+        const goal = yield* SessionGoal.update(db, bus, input.sessionID, input)
+        if (goal && input.action === "resume") yield* execution.wake(input.sessionID)
+        return goal
+      }),
       create: Effect.fn("Session.create")(function* (input) {
         const sessionID = input.id ?? SessionSchema.ID.create()
         const recorded = yield* store.get(sessionID)

@@ -198,6 +198,7 @@ const schema: Omit<DatabaseMigration.Migration, "id"> = {
           \`summary_files\` integer,
           \`summary_diffs\` text,
           \`metadata\` text,
+          \`goal\` text,
           \`cost\` real DEFAULT 0 NOT NULL,
           \`tokens_input\` integer DEFAULT 0 NOT NULL,
           \`tokens_output\` integer DEFAULT 0 NOT NULL,

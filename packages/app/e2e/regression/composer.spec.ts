@@ -60,8 +60,8 @@ test("keeps a 25000-line crash report editable in a new session", async ({ page 
   await page.mouse.up()
   await expect(scroll.locator(".scroll-view__viewport")).toHaveJSProperty("scrollTop", 0)
   await expect(input).toBeFocused()
-  await page.keyboard.press("ControlOrMeta+Home")
-  await page.keyboard.press("ControlOrMeta+End")
+  await page.keyboard.press(process.platform === "darwin" ? "Meta+ArrowUp" : "Control+Home")
+  await page.keyboard.press(process.platform === "darwin" ? "Meta+ArrowDown" : "Control+End")
   await expectCaretVisible(input)
 })
 
@@ -95,7 +95,7 @@ for (const [width, direction] of [
     await page.evaluate((direction) => (document.documentElement.dir = direction), direction)
     const suffix = "\nExisting trailing content".repeat(100)
     await input.fill("Before " + suffix)
-    await input.press("ControlOrMeta+Home")
+    await input.press(process.platform === "darwin" ? "Meta+ArrowUp" : "Control+Home")
     await input.press("ArrowRight")
     const text = "Pasted line /tmp/example.ts 123 \u0645\u0631\u062d\u0628\u0627\n".repeat(100) + "End of paste"
     await page.evaluate((text) => navigator.clipboard.writeText(text), text)
@@ -242,6 +242,7 @@ test("lists slash commands in their built-in order", async ({ page }) => {
     "/mcp",
     "/model",
     "/connect",
+    "/agent",
     "/btw",
   ])
 })
@@ -280,6 +281,45 @@ for (const row of [
     await expect(scroll).toHaveText("Enter shell command… git status")
   })
 }
+
+test("collapses a multiline draft when idle and expands for focus and open menus", async ({ page }) => {
+  const { editor } = await openSession(page, {
+    name: "ComposerFocus",
+    provider: provider({ id: "thinking-model", name: "Thinking Model", variants: { high: {} } }),
+  })
+
+  const composer = page.locator('[data-component="composer"]')
+  const scroll = composer.locator('[data-component="composer-scroll"]')
+  const effort = composer.getByRole("button", { name: "Choose model variant" })
+  const outside = page.getByRole("button", { name: "Home", exact: true })
+
+  await editor.click()
+  await editor.fill(Array.from({ length: 24 }, (_, index) => `Draft line ${index + 1}`).join("\n"))
+  await editor.press(process.platform === "darwin" ? "Meta+ArrowDown" : "Control+End")
+  await expectCaretVisible(editor)
+  const draft = await editor.innerText()
+  const expanded = await scroll.evaluate((element) => element.clientHeight)
+  await outside.focus()
+  await expect(editor).not.toBeFocused()
+  await expect.poll(() => scroll.evaluate((element) => element.clientHeight)).toBeLessThan(expanded)
+  const collapsed = await scroll.evaluate((element) => element.clientHeight)
+  await expect.poll(() => editor.innerText()).toBe(draft)
+  await editor.focus()
+  await expect.poll(() => scroll.evaluate((element) => element.clientHeight)).toBeGreaterThan(collapsed)
+  await editor.press(process.platform === "darwin" ? "Meta+ArrowDown" : "Control+End")
+  await expectCaretVisible(editor)
+  await effort.click()
+  await expect(page.getByRole("menuitemradio", { name: "high", exact: true })).toBeVisible()
+  await expect.poll(() => scroll.evaluate((element) => element.clientHeight)).toBeGreaterThan(collapsed)
+  await page.keyboard.press("Escape")
+  await expect(effort).toBeFocused()
+  await editor.focus()
+  await editor.press(process.platform === "darwin" ? "Meta+ArrowDown" : "Control+End")
+  await editor.pressSequentially("!")
+  await expect.poll(() => editor.innerText()).toBe(draft + "!")
+  await editor.press("ControlOrMeta+Z")
+  await expect.poll(() => editor.innerText()).toBe(draft)
+})
 
 test("shows thinking on hover or a non-default selection while preserving keyboard access", async ({ page }) => {
   const { editor: input } = await openSession(page, {

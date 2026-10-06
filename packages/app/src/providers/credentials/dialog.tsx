@@ -312,7 +312,28 @@ export function CustomProviderForm(
                 <Limits item={item} index={index()} />
                 <fieldset class="custom-provider-reasoning">
                   <legend>{language.t("provider.custom.models.efforts.label")}</legend>
-                  <p>{language.t("provider.custom.models.efforts.description")}</p>
+                  <div class="custom-provider-reasoning-actions">
+                    <p>{language.t("provider.custom.models.efforts.description")}</p>
+                    <Button
+                      type="button"
+                      size="small"
+                      variant="ghost"
+                      onClick={() =>
+                        setForm(
+                          "models",
+                          index(),
+                          "efforts",
+                          efforts.every((effort) => item.efforts.includes(effort)) ? [] : [...efforts],
+                        )
+                      }
+                    >
+                      {language.t(
+                        efforts.every((effort) => item.efforts.includes(effort))
+                          ? "provider.custom.models.efforts.clear"
+                          : "provider.custom.models.efforts.all",
+                      )}
+                    </Button>
+                  </div>
                   <div class="custom-provider-efforts">
                     <For each={efforts}>
                       {(effort) => (

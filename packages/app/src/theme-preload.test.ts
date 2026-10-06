@@ -6,6 +6,7 @@ const run = () => Function(src)()
 
 const setSystemDark = (matches: boolean) =>
   Object.defineProperty(window, "matchMedia", {
+    // SAFETY: The preload only reads matchMedia().matches; no event methods are accessed.
     value: () => ({ matches }) as MediaQueryList,
     configurable: true,
   })
@@ -21,10 +22,10 @@ beforeEach(() => {
 
 describe("theme preload", () => {
   test.each([
-    { stored: undefined, systemDark: false, scheme: "light", background: "#fafafa" },
-    { stored: "dark", systemDark: false, scheme: "dark", background: "#080808" },
-    { stored: "light", systemDark: true, scheme: "light", background: "#fafafa" },
-    { stored: "system", systemDark: true, scheme: "dark", background: "#080808" },
+    { stored: undefined, systemDark: false, scheme: "light", background: "#f6f7fa" },
+    { stored: "dark", systemDark: false, scheme: "dark", background: "#1b2333" },
+    { stored: "light", systemDark: true, scheme: "light", background: "#f6f7fa" },
+    { stored: "system", systemDark: true, scheme: "dark", background: "#1b2333" },
   ])(
     "paints the default theme in $scheme for stored scheme $stored (system dark: $systemDark)",
     ({ stored, systemDark, scheme, background }) => {
@@ -33,11 +34,18 @@ describe("theme preload", () => {
       if (stored) localStorage.setItem("opencode-color-scheme", stored)
       run()
 
-      expect(document.documentElement.dataset.theme).toBe("oc-2")
+      expect(document.documentElement.dataset.theme).toBe("fold")
       expect(document.documentElement.dataset.colorScheme).toBe(scheme)
       expect(document.documentElement.style.backgroundColor).toBe(background)
     },
   )
+
+  test("preserves a saved OpenCode theme choice on first paint", () => {
+    localStorage.setItem("opencode-theme-id", "oc-2")
+    run()
+    expect(document.documentElement.dataset.theme).toBe("oc-2")
+    expect(document.documentElement.style.backgroundColor).toBe("#fafafa")
+  })
 
   test.each([
     { scheme: undefined, key: "opencode-theme-css-light", css: "--background-base:#fff;", expected: "light" },

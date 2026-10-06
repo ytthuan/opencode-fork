@@ -133,6 +133,34 @@ test("single-server settings expose scoped pages without a server picker", async
   expect((await updated).postDataJSON()).toEqual({ shell: "bash" })
 })
 
+test("Fold is the fresh profile theme and theme choices persist across light and dark", async ({ page }) => {
+  const { settings } = await open(page)
+  await settings.getByRole("tab", { name: "Appearance", exact: true }).click()
+  const root = page.locator("html")
+  const theme = settings.locator('[data-action="settings-theme"]')
+  const scheme = settings.locator('[data-action="settings-color-scheme"]')
+  await expect(root).toHaveAttribute("data-theme", "fold")
+  await expect(theme).toHaveText("Fold")
+  await scheme.click()
+  await page.getByRole("option", { name: "Dark", exact: true }).click()
+  await expect(root).toHaveAttribute("data-color-scheme", "dark")
+  await expect(root).toHaveCSS("background-color", "rgb(27, 35, 51)")
+  await page.reload()
+  await expect(theme).toHaveText("Fold")
+  await expect(root).toHaveAttribute("data-color-scheme", "dark")
+  await theme.click()
+  await page.getByRole("option", { name: "OpenCode", exact: true }).click()
+  await page.reload()
+  await expect(theme).toHaveText("OpenCode")
+  await expect(root).toHaveAttribute("data-theme", "oc-2")
+  await theme.click()
+  await page.getByRole("option", { name: "Fold", exact: true }).click()
+  await scheme.click()
+  await page.getByRole("option", { name: "Light", exact: true }).click()
+  await expect(root).toHaveAttribute("data-theme", "fold")
+  await expect(root).toHaveCSS("background-color", "rgb(246, 247, 250)")
+})
+
 test("project list menus rename, close, edit, add, and stay inside the scrollport", async ({ page }) => {
   const projects = ["rebase", "dinocms", "opencode", "Playground"].map((name, index) =>
     project({ id: `project-${index}`, directory: `/projects/${name}`, name }),
@@ -730,6 +758,12 @@ test("custom providers edit multiple endpoints, limits, and reasoning without re
   await second.getByLabel("Maximum input tokens", { exact: true }).fill("144000")
   await second.getByLabel("Maximum output tokens", { exact: true }).fill("128000")
   await second.getByRole("checkbox", { name: "Medium", exact: true }).check()
+  await second.getByRole("button", { name: "Select all", exact: true }).click()
+  await expect(second.getByRole("checkbox", { checked: true })).toHaveCount(7)
+  await expect(first.getByRole("checkbox", { checked: true })).toHaveCount(0)
+  await second.getByRole("button", { name: "Clear all", exact: true }).click()
+  await expect(second.getByRole("checkbox", { checked: true })).toHaveCount(0)
+  await second.getByRole("button", { name: "Select all", exact: true }).click()
 
   const saved = page.waitForResponse(
     (response) => response.url().endsWith("/api/experimental/config") && response.request().method() === "PATCH",
@@ -751,7 +785,13 @@ test("custom providers edit multiple endpoints, limits, and reasoning without re
             settings: { baseURL: "http://localhost:4000/anthropic" },
             limit: { context: 272000, input: 144000, output: 128000 },
             variants_mode: "replace",
-            variants: [{ id: "medium", settings: { thinking: { type: "adaptive" }, effort: "medium" } }],
+            variants: ["none", "minimal", "low", "medium", "high", "xhigh", "max"].map((effort) => ({
+              id: effort,
+              settings:
+                effort === "none"
+                  ? { thinking: { type: "disabled" } }
+                  : { thinking: { type: "adaptive" }, effort },
+            })),
           },
         },
       },

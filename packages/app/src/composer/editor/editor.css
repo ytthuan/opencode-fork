@@ -1,3 +1,24 @@
+/* Keep the editor mounted so collapsing preserves the draft, selection and undo history. */
+[data-component="composer"] [data-component="composer-scroll"] {
+  min-height: 44px;
+  max-height: 44px;
+}
+
+[data-component="composer"]:is(:focus-within, [data-engaged="true"], :has([aria-expanded="true"]))
+  [data-component="composer-scroll"] {
+  min-height: 76px;
+  max-height: 180px;
+}
+
+[data-theme="fold"] [data-component="composer"] {
+  border-radius: 16px;
+  box-shadow: 0 0 0 1px var(--v2-border-border-base), var(--v2-elevation-raised);
+}
+
+[data-theme="fold"] [data-component="composer"]:focus-within {
+  box-shadow: 0 0 0 1px var(--v2-border-border-focus), var(--v2-elevation-raised);
+}
+
 [data-component="composer-editor"]:empty::before {
   content: "\200B";
 }

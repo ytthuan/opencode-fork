@@ -57,7 +57,28 @@ describe("contrast icon-button tokens", () => {
   })
 })
 
+const fold: DesktopTheme = await Bun.file(new URL("../themes/fold.json", import.meta.url)).json()
+
+test.each(["light", "dark"] as const)("Fold %s keeps text readable across its working surfaces", (mode) => {
+  const tokens = resolveThemeV2(fold)[mode]
+
+  // SAFETY: Resolved color tokens in these bundled themes are hex colors or references to hex colors.
+  const resolve = (value: string): HexColor =>
+    value.startsWith("var(--") ? resolve(tokens[value.slice(6, -1)]) : (value as HexColor)
+
+  for (const surface of ["base", "deep", "layer-01"]) {
+    const background = resolve(tokens[`v2-background-bg-${surface}`])
+
+    for (const role of ["base", "muted", "faint", "accent"]) {
+      expect(contrastRatio(resolve(tokens[`v2-text-text-${role}`]), background)).toBeGreaterThanOrEqual(4.5)
+    }
+  }
+
+  expectIconEmphasis(tokens)
+})
+
 function expectIconEmphasis(tokens: ResolvedV2Theme) {
+  // SAFETY: Resolved color tokens in these bundled themes are hex colors or references to hex colors.
   const resolve = (value: string): HexColor =>
     value.startsWith("var(--") ? resolve(tokens[value.slice(6, -1)]) : (value as HexColor)
 

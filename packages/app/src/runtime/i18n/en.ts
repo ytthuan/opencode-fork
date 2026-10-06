@@ -252,6 +252,8 @@ export const dict = {
   "provider.custom.models.efforts.label": "Reasoning effort",
   "provider.custom.models.efforts.description":
     "Select the levels accepted by this model. Leave all unchecked for a model without reasoning.",
+  "provider.custom.models.efforts.all": "Select all",
+  "provider.custom.models.efforts.clear": "Clear all",
   "provider.custom.effort.none": "None",
   "provider.custom.effort.minimal": "Minimal",
   "provider.custom.effort.low": "Low",

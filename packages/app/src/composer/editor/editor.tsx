@@ -110,9 +110,26 @@ export function ComposerEditor(props: ComposerEditorProps) {
   })
   let localInput = false
 
+  const reveal = () => {
+    const selection = window.getSelection()
+
+    if (!editor || !viewport || !selection?.isCollapsed || !selection.rangeCount) return
+
+    if (!editor.contains(selection.anchorNode)) return
+    const caret = selection.getRangeAt(0).getBoundingClientRect()
+
+    if (!caret.height) return
+    const bounds = viewport.getBoundingClientRect()
+
+    if (caret.bottom > bounds.bottom - 8) viewport.scrollTop += caret.bottom - bounds.bottom + 8
+
+    if (caret.top < bounds.top + 8) viewport.scrollTop += caret.top - bounds.top - 8
+  }
+
   const updateCursor = () => {
     if (!editor || !window.getSelection()?.isCollapsed) return
     props.controller.onCursor(composerCursor(editor))
+    requestAnimationFrame(reveal)
   }
 
   const mode = createMemo(() => state.mode)
@@ -177,8 +194,9 @@ export function ComposerEditor(props: ComposerEditorProps) {
       </Show>
       <form
         data-component="composer"
+        data-engaged={state.popover.type !== "closed" || state.drag === "active" ? "true" : undefined}
         data-dock-border-underlay={props.borderUnderlay ? "true" : undefined}
-        class="group/composer relative min-h-[96px] w-full overflow-clip rounded-xl bg-v2-background-bg-base"
+        class="group/composer relative w-full overflow-clip rounded-xl bg-v2-background-bg-base"
         classList={{
           "shadow-[var(--v2-elevation-raised)]": !props.borderUnderlay,
         }}
@@ -211,7 +229,6 @@ export function ComposerEditor(props: ComposerEditorProps) {
 
         <ScrollView
           data-component="composer-scroll"
-          class="min-h-[60px] max-h-[180px]"
           viewportRef={(element) => {
             viewport = element
             element.tabIndex = -1
@@ -233,7 +250,7 @@ export function ComposerEditor(props: ComposerEditorProps) {
             spellcheck={state.mode === "normal"}
             // @ts-expect-error
             autocomplete="off"
-            class="relative z-10 block min-h-[60px] w-full whitespace-pre-wrap bg-transparent px-4 pt-4 pb-2 text-[13px] font-[440] leading-5 text-v2-text-text-base focus:outline-none [&_[data-mention=file]]:text-syntax-property [&_[data-mention=agent]]:text-syntax-type [&_[data-mention=reference]]:text-syntax-keyword"
+            class="relative z-10 block min-h-[76px] w-full whitespace-pre-wrap bg-transparent px-4 pt-4 pb-2 text-[13px] font-[440] leading-5 text-v2-text-text-base focus:outline-none [&_[data-mention=file]]:text-syntax-property [&_[data-mention=agent]]:text-syntax-type [&_[data-mention=reference]]:text-syntax-keyword"
             classList={{ "font-mono!": state.mode === "shell", "opacity-50": props.disabled }}
             style={{
               "unicode-bidi": state.mode === "normal" ? "plaintext" : undefined,
@@ -268,23 +285,12 @@ export function ComposerEditor(props: ComposerEditorProps) {
             onPaste={(event) => {
               props.controller.onPaste(event)
               // Programmatic multiline insertion does not reliably reveal the caret.
-              requestAnimationFrame(() => {
-                const selection = window.getSelection()
-
-                if (!editor || !viewport || !selection?.isCollapsed || !selection.rangeCount) return
-
-                if (!editor.contains(selection.anchorNode)) return
-                const caret = selection.getRangeAt(0).getBoundingClientRect()
-
-                if (!caret.height) return
-                const bounds = viewport.getBoundingClientRect()
-
-                if (caret.bottom > bounds.bottom - 8) viewport.scrollTop += caret.bottom - bounds.bottom + 8
-
-                if (caret.top < bounds.top + 8) viewport.scrollTop += caret.top - bounds.top - 8
-              })
+              requestAnimationFrame(reveal)
             }}
-            onFocus={() => props.controller.dispatch({ type: "focus.editor" })}
+            onFocus={() => {
+              props.controller.dispatch({ type: "focus.editor" })
+              requestAnimationFrame(reveal)
+            }}
           />
           <Show when={!props.controller.value()}>
             <div

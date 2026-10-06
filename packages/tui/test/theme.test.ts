@@ -2,6 +2,8 @@ import { expect, test } from "bun:test"
 import { mkdir, writeFile } from "node:fs/promises"
 import path from "node:path"
 import type { TerminalColors } from "@opentui/core"
+import { resolveThemeDocument } from "@opencode/theme/tui"
+import { RGBA } from "@opentui/core"
 import { allThemes, hasTheme, getOpenCodeTheme, parseTheme, resolveTheme } from "../src/theme"
 import { discoverThemes } from "../src/theme/discovery"
 import { configDirectories } from "../src/util/config-directories"
@@ -20,6 +22,13 @@ test("rejects unrecognized theme structures", () => {
 test("registers opencode as a native V2 theme", () => {
   expect(allThemes().opencode).toBe(getOpenCodeTheme())
   expect(parseTheme(getOpenCodeTheme()).base).toBeDefined()
+})
+
+test.each(["light", "dark"] as const)("Fold %s resolves readable text and matching blue actions", (mode) => {
+  const theme = resolveThemeDocument(parseTheme(allThemes().fold, "fold"), mode)
+  expect(theme.background.base.equals(RGBA.fromHex(mode === "light" ? "#f6f7fa" : "#1b2333"))).toBeTrue()
+  expect(theme.text.base.equals(RGBA.fromHex(mode === "light" ? "#303d54" : "#eff1f6"))).toBeTrue()
+  expect(theme.text.action.primary.selected.equals(RGBA.fromHex(mode === "light" ? "#3e5db9" : "#a2b9ef"))).toBeTrue()
 })
 
 test("detects V1 themes from their theme field and caches migrations", () => {

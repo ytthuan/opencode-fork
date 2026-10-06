@@ -713,7 +713,7 @@ export async function runNonInteractivePrompt(input: Input) {
     submitted = true
     completed = consume()
     admission = new AbortController()
-    const response = await input.client.session
+    const request = input.client.session
       .prompt(
         {
           sessionID: input.sessionID,
@@ -733,6 +733,7 @@ export async function runNonInteractivePrompt(input: Input) {
         if (interrupted || emittedError) return undefined
         throw error
       })
+    const response = await Promise.race([request, completed.then(() => request)])
     admission = undefined
     if (!response) return
     if (interrupted) await input.client.session.interrupt({ sessionID: input.sessionID }).catch(() => {})
@@ -760,7 +761,7 @@ export async function runNonInteractivePrompt(input: Input) {
       return
     }
 
-    const waiting = input.client.session.wait({ sessionID: input.sessionID })
+    const waiting = input.client.session.wait({ sessionID: input.sessionID }, { signal: controller.signal })
     await Promise.race([waiting, completed.then(() => waiting)])
     finalizing = true
     const projected = await reconcile()
@@ -782,6 +783,7 @@ export async function runNonInteractivePrompt(input: Input) {
     }
   } finally {
     process.off("SIGINT", interrupt)
+    admission?.abort()
     controller.abort()
     if (input.compatibility === "v1") await stream.return?.(undefined).catch(() => {})
     else void stream.return?.(undefined).catch(() => {})

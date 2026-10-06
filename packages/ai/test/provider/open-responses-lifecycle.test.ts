@@ -524,3 +524,49 @@ describe("Open Responses basic-item lifecycles", () => {
     }),
   )
 })
+
+describe("Open Responses tool completion replay", () => {
+  it.effect("emits one tool call when a completed item is repeated", () =>
+    Effect.gen(function* () {
+      const item = {
+        type: "function_call",
+        id: "fc_1",
+        call_id: "call_1",
+        name: "lookup",
+        arguments: '{"query":"once"}',
+      }
+      const events = yield* collect(
+        { type: "response.output_item.added", item },
+        { type: "response.output_item.done", item },
+        { type: "response.output_item.done", item },
+        completed,
+      )
+      expect(events.filter(LLMEvent.is.toolCall)).toHaveLength(1)
+      expect(events.filter(LLMEvent.is.toolInputStart)).toHaveLength(1)
+      expect(events.filter(LLMEvent.is.toolInputEnd)).toHaveLength(1)
+      expect(events.filter(LLMEvent.is.toolCall)[0]?.input).toEqual({ query: "once" })
+    }),
+  )
+
+  it.effect("does not reopen a completed call when added and delta frames are replayed", () =>
+    Effect.gen(function* () {
+      const item = {
+        type: "function_call",
+        id: "fc_1",
+        call_id: "call_1",
+        name: "lookup",
+        arguments: "{}",
+      }
+      const events = yield* collect(
+        { type: "response.output_item.added", item },
+        { type: "response.output_item.done", item },
+        { type: "response.output_item.added", item },
+        { type: "response.function_call_arguments.delta", item_id: "fc_1", delta: "{}" },
+        completed,
+      )
+      expect(events.filter(LLMEvent.is.toolCall)).toHaveLength(1)
+      expect(events.filter(LLMEvent.is.toolInputStart)).toHaveLength(1)
+      expect(events.filter(LLMEvent.is.toolInputEnd)).toHaveLength(1)
+    }),
+  )
+})

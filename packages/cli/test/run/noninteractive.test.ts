@@ -313,6 +313,78 @@ afterEach(() => {
 })
 
 describe("runNonInteractivePrompt", () => {
+  test("a disconnected event stream cancels pending admission and wait requests", async () => {
+    for (const phase of ["admission", "execution"]) {
+      const events = Promise.withResolvers<ReadableStreamDefaultController<Uint8Array>>()
+      const cancelled = Promise.withResolvers<void>()
+      const encoder = new TextEncoder()
+      const server = Bun.serve({
+        hostname: "127.0.0.1",
+        port: 0,
+        async fetch(request) {
+          const route = new URL(request.url).pathname
+          if (route === "/api/event")
+            return new Response(
+              new ReadableStream<Uint8Array>({
+                start(controller) {
+                  controller.enqueue(encoder.encode('data: {"type":"server.connected","data":{}}\n\n'))
+                  events.resolve(controller)
+                },
+              }),
+              { headers: { "content-type": "text/event-stream" } },
+            )
+          if (route.endsWith("/prompt")) {
+            const body = await request.json()
+            const controller = await events.promise
+            controller.enqueue(encoder.encode(`data: ${JSON.stringify(prompted(body.id))}\n\n`))
+            if (phase === "execution")
+              return Response.json({ data: { id: body.id, sessionID: "ses_1", time: { created: 1 } } })
+          }
+          if (route.endsWith("/prompt") || route.endsWith("/wait")) {
+            const controller = await events.promise
+            controller.close()
+            return new Promise<Response>((resolve) => {
+              request.signal.addEventListener(
+                "abort",
+                () => {
+                  cancelled.resolve()
+                  resolve(new Response(null, { status: 499 }))
+                },
+                { once: true },
+              )
+            })
+          }
+          return Response.json({ data: [] })
+        },
+      })
+      const task = runNonInteractivePrompt({
+        client: OpenCode.make({ baseUrl: server.url.href }),
+        sessionID: "ses_1",
+        location,
+        message: "hello",
+        files: [],
+        thinking: false,
+        format: "json",
+        auto: false,
+        attached: true,
+        renderTool: async () => {},
+        renderToolError: async () => {},
+      }).then(
+        () => undefined,
+        (error: unknown) => error,
+      )
+      try {
+        const result = await Promise.race([task, Bun.sleep(500).then(() => "pending")])
+        expect(result).toBeInstanceOf(Error)
+        expect(result).toMatchObject({ message: expect.stringContaining("Event stream disconnected") })
+        expect(await Promise.race([cancelled.promise.then(() => true), Bun.sleep(500).then(() => false)])).toBe(true)
+      } finally {
+        await server.stop(true)
+        await task
+      }
+    }
+  })
+
   test("keeps formatted tool output and compact tool metadata in JSON", async () => {
     const output = await capture({ format: "json", turn: successfulGrep })
     const events = output.stdout

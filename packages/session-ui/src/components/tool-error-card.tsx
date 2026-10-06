@@ -50,7 +50,7 @@ export function ToolErrorCard(props: ToolErrorCardProps) {
   const name = createMemo(() => {
     if (split.title) return split.title
 
-    const map: Record<string, string> = {
+    const map = {
       read: "ui.tool.read",
       list: "ui.tool.list",
       glob: "ui.tool.glob",
@@ -64,7 +64,7 @@ export function ToolErrorCard(props: ToolErrorCardProps) {
       question: "ui.tool.questions",
     }
 
-    const key = map[split.tool]
+    const key = Object.entries(map).find(([tool]) => tool === split.tool)?.[1]
 
     if (!key) return split.tool
 
@@ -95,9 +95,9 @@ export function ToolErrorCard(props: ToolErrorCardProps) {
   const detail = createMemo(() => {
     const parts = tail().split(": ")
 
-    if (parts.length <= 1) return ""
+    if (parts.length <= 1) return cleaned()
 
-    return parts.slice(1).join(": ").trim()
+    return parts.slice(1).join(": ").trim() || cleaned()
   })
 
   const copy = async () => {

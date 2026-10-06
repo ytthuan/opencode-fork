@@ -267,7 +267,7 @@ export const defaultSettings: Settings = {
   general: {
     showFileTree: false,
     timelineDetail: { ...timelinePresets[2].value },
-    showCustomAgents: false,
+    showCustomAgents: true,
     mobileTitlebarPosition: "top",
     terminalPlacement: "side",
     followUpBehavior: "steer",

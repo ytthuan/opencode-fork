@@ -422,6 +422,8 @@ const BASE_ADAPTER: ProviderAdapter = { id: ADAPTER, name: NAME }
 export interface ParserState {
   readonly provider: LLMRequest["model"]["provider"]
   readonly completedCompactions: ReadonlySet<string>
+  // Pending calls are removed on completion; retain their item IDs to ignore replayed frames.
+  readonly settled: ReadonlySet<string>
   readonly id: string
   readonly name: string
   readonly providerMetadataKey: string
@@ -1095,6 +1097,7 @@ const onOutputItemAdded = (state: ParserState, event: NormalizedEvent): StepResu
     ]
   }
   if (item.type !== "function_call" || !item.call_id) return [state, NO_EVENTS]
+  if (state.settled.has(item.id)) return [state, NO_EVENTS]
   if (state.tools[item.id] !== undefined) return [state, NO_EVENTS]
   const metadata = providerMetadata(state, { itemId: item.id })
   const events: LLMEvent[] = []
@@ -1234,6 +1237,7 @@ const onOutputItemDone = Effect.fnUntraced(function* (
 
   if (item.type === "function_call") {
     if (!item.call_id || !item.name) return [state, NO_EVENTS] satisfies StepResult
+    if (state.settled.has(item.id)) return [state, NO_EVENTS] satisfies StepResult
     const metadata = providerMetadata(state, { itemId: item.id })
     const registered = state.tools[item.id] !== undefined
     const tools = registered
@@ -1273,6 +1277,7 @@ const onOutputItemDone = Effect.fnUntraced(function* (
           resultEvents.some((event) => LLMEvent.is.toolCall(event) || LLMEvent.is.toolInputError(event)) ||
           state.hasFunctionCall,
         tools: result.tools,
+        settled: new Set([...state.settled, item.id]),
       },
       events,
     ] satisfies StepResult
@@ -1476,6 +1481,7 @@ export const step = (state: ParserState, event: NormalizedEvent) => {
 export const initial = (request: LLMRequest, adapter: ProviderAdapter = BASE_ADAPTER): ParserState => ({
   provider: request.model.provider,
   completedCompactions: new Set<string>(),
+  settled: new Set<string>(),
   id: adapter.id,
   name: adapter.name,
   providerMetadataKey: metadataKey(request.model),

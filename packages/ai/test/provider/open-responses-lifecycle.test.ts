@@ -526,6 +526,47 @@ describe("Open Responses basic-item lifecycles", () => {
 })
 
 describe("Open Responses tool completion replay", () => {
+  it.effect("uses the final name and namespace when a streamed call starts without them", () =>
+    Effect.gen(function* () {
+      const events = yield* collect(
+        { type: "response.output_item.added", item: { type: "function_call", id: "fc_1", call_id: "call_1" } },
+        { type: "response.function_call_arguments.delta", item_id: "fc_1", delta: '{"query":"weather"}' },
+        {
+          type: "response.output_item.done",
+          item: {
+            type: "function_call",
+            id: "fc_1",
+            call_id: "call_1",
+            name: "lookup",
+            namespace: "weather",
+            arguments: '{"query":"weather"}',
+          },
+        },
+        completed,
+      )
+      expect(events.filter(LLMEvent.is.toolCall)).toEqual([
+        {
+          type: "tool-call",
+          id: "call_1",
+          name: "lookup",
+          namespace: "weather",
+          input: { query: "weather" },
+          providerExecuted: undefined,
+          providerMetadata: { "openai-compatible": { itemId: "fc_1" } },
+        },
+      ])
+      expect(events.filter(LLMEvent.is.toolInputEnd)).toEqual([
+        {
+          type: "tool-input-end",
+          id: "call_1",
+          name: "lookup",
+          namespace: "weather",
+          providerMetadata: { "openai-compatible": { itemId: "fc_1" } },
+        },
+      ])
+    }),
+  )
+
   it.effect("emits one tool call when a completed item is repeated", () =>
     Effect.gen(function* () {
       const item = {

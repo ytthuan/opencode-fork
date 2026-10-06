@@ -77,6 +77,7 @@ const comparable = (value: unknown) => {
       type: value.type,
       call_id: value.call_id,
       name: value.name,
+      namespace: value.namespace,
       arguments: json(value.arguments),
     }
   if (value.type === "reasoning")

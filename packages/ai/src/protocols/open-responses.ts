@@ -1240,14 +1240,13 @@ const onOutputItemDone = Effect.fnUntraced(function* (
     if (state.settled.has(item.id)) return [state, NO_EVENTS] satisfies StepResult
     const metadata = providerMetadata(state, { itemId: item.id })
     const registered = state.tools[item.id] !== undefined
-    const tools = registered
-      ? state.tools
-      : ToolStream.start(state.tools, item.id, {
-          id: item.call_id,
-          name: item.name,
-          namespace: item.namespace,
-          providerMetadata: metadata,
-        })
+    const tools = ToolStream.start(state.tools, item.id, {
+      ...state.tools[item.id],
+      id: state.tools[item.id]?.id ?? item.call_id,
+      name: item.name,
+      namespace: item.namespace ?? state.tools[item.id]?.namespace,
+      providerMetadata: metadata,
+    })
     const result =
       item.arguments === undefined
         ? yield* ToolStream.finish(state.id, tools, item.id)

@@ -751,6 +751,49 @@ describe("OpenAI Responses route", () => {
     ),
   )
 
+  it.effect("sends full context when a replayed tool namespace differs from its checkpoint", () =>
+    Effect.gen(function* () {
+      const request = {
+        type: "response.create",
+        model: "gpt-5.2",
+        input: [{ type: "message", role: "user", content: [{ type: "input_text", text: "Weather?" }] }],
+      }
+      const item = {
+        type: "function_call",
+        id: "fc_1",
+        call_id: "call_1",
+        name: "lookup",
+        namespace: "weather",
+        arguments: '{"city":"Paris"}',
+      }
+      const first = continuationDriver(request)
+      const create = yield* first.create(undefined)
+      const saved = checkpoint(
+        yield* first.observe(
+          create,
+          ProviderShared.encodeJson({ type: "response.completed", response: { id: "resp_1", output: [item] } }),
+        ),
+      )
+      for (const namespace of ["weather", "calendar"]) {
+        const next = continuationDriver({
+          ...request,
+          input: [
+            ...request.input,
+            { ...item, namespace },
+            { type: "function_call_output", call_id: "call_1", output: "Sunny" },
+          ],
+        })
+        const continued = yield* next.create(saved)
+        expect(continued.mode).toBe(namespace === "weather" ? "incremental" : "full")
+        expect(ProviderShared.decodeJson(continued.message)).toMatchObject(
+          namespace === "weather"
+            ? { previous_response_id: "resp_1", input: [{ type: "function_call_output", call_id: "call_1", output: "Sunny" }] }
+            : { input: [...request.input, { ...item, namespace }, { type: "function_call_output", call_id: "call_1", output: "Sunny" }] },
+        )
+      }
+    }),
+  )
+
   it.effect("continues streamed reasoning when completion re-encrypts the same item", () =>
     Effect.gen(function* () {
       const firstInput = [{ type: "message", role: "user", content: [{ type: "input_text", text: "Think" }] }]

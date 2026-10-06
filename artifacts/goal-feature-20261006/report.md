@@ -1,71 +1,91 @@
 # Goal feature implementation report — October 6, 2026
 
-Implemented in `/private/tmp/opencode-v2-goal`, branch `goal-feature`, base `f96f9e6a52`. No merge or push; no changes to the parent checkout. No subagents spawned. Existing apps and servers were not restarted. Tests used separate in-memory databases, temporary fixture servers, and isolated browser profiles.
+Implemented in `/private/tmp/opencode-v2-goal`, branch `goal-feature`, based on `f96f9e6a52`. Initial feature commit: `522ac7d873` (`feat(core): add persistent session goals`). Follow-up commit message: `fix(goal): finish runs and add TUI controls`.
 
-## Delivered behavior
+Work stayed in this isolated checkout. No parent edits, merge, push, subagents, or restart of existing apps/servers. Tests used separate fixture servers and databases. Bun **1.4.2** came from `/private/tmp/opencode-v2-tools/node_modules/@oven/bun-darwin-aarch64/bin`. No runtime dependencies or lockfile changes were added.
 
-- Explicit persistent goals per session: create, inspect, edit, pause, resume, block, complete, clear. An unfinished goal prevents replacement; completed goals may be replaced. Ordinary prompts never create or resume goals.
-- SQLite migration adds nullable `session_v2.goal`. Durable mutation events contain new facts; replay derives revisions/round counts. Updates compare **both goal ID and revision**, rejecting stale or replaced goals. Create/resume commits goal state and durable synthetic inbox admission atomically before the existing coordinator is woken.
-- Active, armed goals continue after idle model responses. The default cap is 256 automatic follow-up rounds, configurable by the user. The initial explicit admission is separate. Each follow-up may contain several logical model steps. At the cap or agent step allowance the goal blocks with a reason. Every physical model attempt stays in the existing v2 runner.
-- Pause/complete/block/clear cancel undelivered goal inputs and stop goal continuation at a safe boundary, preserving ordinary queued prompts. Already running requests/tools finish; existing Stop is the immediate interruption control.
-- Continuation authority is process-local. Interruption/failure disarm it. Restarted/imported goals remain durable but require explicit resume. Forks have no goal and need separate user intent.
-- Existing `opencode` model namespace gains `goal_get` and `goal_update`, scoped to the caller's session. Models may edit objectives, complete, block, or request pause. They cannot create, resume, clear, or increase the cap. Pause needs both normal tool permission and a direct user confirmation form; cancellation/denial does not mutate the goal.
-- Public v2 GET/POST/PATCH goal API; regenerated Promise and Effect client surfaces; shared client metadata refresh on goal events; `Session.Info.goal` available to clients.
-- `opencode session goal <sessionID> --action ...` user controls, with objective/cap/reason flags. Shared web/desktop/mobile app goal strip with localized English source keys, multiline objective editor, statuses/rounds/blocker, and pause/resume/complete/clear. Existing TUI can use the same model tools/API, but no dedicated TUI goal dialog or slash command was added.
-- Session exports/imports retain goal snapshots. Sanitized export redacts the objective and blocker text.
+## Concrete feature behavior
 
-See `README.md` here for CLI examples, API payloads, exact semantics and upstream study details.
+- One explicit persistent goal per session: create, inspect, edit, pause, resume, block, complete, clear. An unfinished goal prevents replacement; completed goals can be replaced or cleared. **Ordinary prompts never create or resume goals.**
+- SQLite stores nullable `session_v2.goal`. Minimal durable events record changed facts; replay derives revisions and round counts. Mutations compare both goal ID and revision, rejecting stale updates and replaced goals. Create/resume commits the goal and synthetic inbox admission atomically before waking the existing coordinator.
+- Active, armed goals continue after idle model responses. The default user-configurable cap is **256 automatic follow-up rounds**; the initial explicit admission is separate. A round can include multiple logical model steps. The round cap or agent step allowance blocks the goal with a reason. All physical model attempts stay in the native v2 runner.
+- Pause/complete/block/clear cancel undelivered goal inputs and stop automatic work at a safe boundary. Running requests/tools finish; existing Stop is the immediate interruption control. Ordinary queued prompts remain runnable.
+- Model completion or blocking that leaves a tool continuation now receives one grounded closing answer with `toolChoice: "none"`. The previous implementation stopped after the tool result without addressing the user. Newly promoted user instructions take over with normal tools, including input admitted during closing-context preparation. Pause/clear remain safe-boundary stops.
+- Continuation authority is process-local. Interruption/failure disarm it. Restarted/imported goals retain their durable snapshot but require explicit resume. Forks start without a goal and need separate user intent.
+- Existing model namespace tools `tools.opencode.goal_get()` and `goal_update({ id, revision, action, objective?, reason? })` operate on the caller's session. Models can inspect/edit, complete achieved work, block with a reason, or request pause. They cannot create/resume/clear/increase the cap. Model pause requires existing permission policy plus direct user confirmation; denial/dismissal leaves the goal unchanged.
+- Public native v2 GET/POST/PATCH goal API, generated Promise/Effect clients, shared metadata refresh on `session.goal.changed`, and `Session.Info.goal`.
+- CLI: `opencode session goal <sessionID> --action get|create|update|pause|resume|block|complete|clear`, with `--objective`, `--max-rounds`, and `--reason`.
+- TUI: type `/goal` and select it from autocomplete, or choose **Manage persistent goal** in the command palette. The dialog supports all lifecycle actions, objective/cap edits, blocker reasons, invalid-cap feedback and stale-update recovery. A clickable objective/status/round strip sits above the composer. `session.goal` is an optional keybind, unbound by default. The menu clears its filter after lifecycle changes so newly available actions remain accessible.
+- Shared web/desktop/mobile app: **Set goal** strip, English i18n source strings, multiline objective/cap editor, durable status/rounds/blocker, and explicit pause/resume/complete/clear.
+- Session export/import retains goal snapshots. Sanitized export redacts objectives and blocker text.
 
-## Upstream provenance
+Usage, API payloads and exact semantics are in `README.md` here.
 
-Pinned DeepSeek harness HEAD at **`5badb15009ae1756c3afe0ae0cef1faafc290ccc`**, resolved live October 6, 2026. Studied goal types/domain/fold/runtime/service, round driver/prompt, tools/authority/wrapup, command controls, web GoalBar/activation/input and their documentation. Adapted behavior to native v2 services, not the foreign plugin/projection framework. No upstream source files were copied; the upstream MIT copyright/license is retained in `DEEPSEEK-HARNESS-LICENSE.txt` as attribution.
+## Upstream study and license
 
-## Validation
+Pinned DeepSeek harness at **`5badb15009ae1756c3afe0ae0cef1faafc290ccc`**, HEAD resolved October 6, 2026. Studied goal types/domain/fold/runtime/service, round-driver/prompt, model tools/authority/wrapup, explicit command controls, web GoalBar/activation/input and package documentation. Revisited closing-response and command behavior at the same pin for the follow-up.
 
-All commands used Bun **1.4.2** from `/private/tmp/opencode-v2-tools/node_modules/@oven/bun-darwin-aarch64/bin`. No runtime dependencies or lockfile changes were added.
+Adapted those behavioral concepts into v2 Schema/Core/Protocol/Server and existing tool/client surfaces. No foreign plugin runtime, v1 implementation, or upstream source files were copied. The upstream MIT copyright/license is retained in `DEEPSEEK-HARNESS-LICENSE.txt` as attribution.
 
-| Check | Evidence and outcome |
+## Final validation
+
+Tests ran from their owning package directories. The canonical check ran from the root.
+
+| Check | Actual result and evidence |
 |---|---|
-| Canonical root `bun run check` | **PASS**, all 36 package tasks, 16.773 s; `check-final.log` |
-| Core runner, goals, database migrations | **250 PASS, 0 FAIL**, 1,180 expectations; `core-final-tests.log` |
-| Full Schema tests | **66 PASS, 0 FAIL**; `schema-final-tests.log` |
-| Goal HTTP lifecycle + session import | **4 PASS, 0 FAIL**; `server-goal-tests.log` |
-| Promise/Effect goal client wire tests | **2 PASS, 0 FAIL**; `client-goal-tests.log` |
-| Focused CLI API/import boundary checks | **8 PASS, 0 FAIL**; `cli-focused-tests.log` |
-| Generated client reproducibility | **PASS**, generation repeated with identical file hashes; `generation-verification.txt` |
-| Migration generation/check | Generated via Core migration script; no ungenerated migration regression passed in Core suite; `migration.log` |
-| Source diff whitespace | `git diff --check` passed |
-| Production app build | **PASS** during Playwright benchmark builds; no packaging/release claim |
+| Root `bun run check` | **PASS**, 36 successful package tasks, 16.575 s. Lint: 1,588 warnings, zero errors. `followup-check-verified.log`; new app test files have zero diagnostics in `followup-app-lint-final.json`. |
+| Core goals/runner/execution recovery/retry/instructions | **277 pass, 0 fail**, 1,346 expectations across five files. `followup-core-boundary-final-tests.log`. |
+| Production goal execution, HTTP lifecycle and import | **7 pass, 0 fail**, 60 expectations across three files. `followup-server-boundary-final-tests.log`. |
+| TUI controls/select/keymap/arguments | **40 pass, 0 fail**, 138 expectations. Full goal lifecycle, `/goal` entry, cap validation and stale-update recovery at widths **40 and 100**. `followup-tui-final-tests.log`. |
+| Shared app goal bar | **PASS**, one isolated Happy DOM keeper fixture with 20 expectations plus its wrapper. `followup-app-goal-dom-final.log`, `followup-app-goal-dom-fixture-final.log`. Production Solid component and generated client, deterministic transport replies; no Chrome claim. |
+| CLI goal flags and wire contract | **PASS**, 18 expectations, eight actual CLI invocations. `followup-cli-goal-wire.log`. Fixture HTTP replies; domain/runner behavior is owned by Core/Server tests. |
+| CLI import/export boundaries | **10 pass, 0 fail**, 42 expectations. `followup-cli-final-tests.log`. |
+| Full Schema suite | **66 pass, 0 fail**, 261 expectations. `followup-schema-final-tests.log`. |
+| Goal Promise/Effect client wire tests | **2 pass, 0 fail**. `followup-client-final-tests.log`. |
+| Migration and original feature checks | Initial phase: **250 pass, 0 fail**, including Core migration coverage. `core-final-tests.log`. Client generation repeated with identical hashes: `generation-verification.txt`. Follow-up changes no public Protocol/HttpApi contract. |
+| Formatting and whitespace | Changed/new files pass Prettier; `followup-format-complete.log`, `followup-format-boundary.log`, `followup-format-clean.log`. `git diff --check` passes. |
+| Production app build | Passed during benchmark preparation. Packaging and installed-app execution were not run. |
 
-Regression coverage includes real SQL/Bus persistence and lifecycle, blank input/blocker checks, concurrent create/update winner preservation, stale revisions and replaced IDs, follow-up round cap, direct model tool validation, rejected model resume and unapproved pause, pause before/during execution, ordinary prompt behavior, disarmed resume, agent step allowance, HTTP 409/404/400 behavior and imported paused goal state. Fixtures exercise the actual runner and registry.
+### Production execution evidence
 
-## Benchmark evidence and failed broader checks
+`packages/server/test/session-goal-execution.test.ts` runs the actual `ServerFetch` graph, v2 runner, registry, permissions and Code Mode, **without execution/plugin service replacements**. Its model dependency is a deterministic OpenAI-compatible loopback HTTP/SSE provider.
 
-Required Core location baseline was taken before session changes (`benchmark-before.log`): first 298.00 ms; cached mean 0.01 ms; cold mean **42.41 ms**, p50 40.90 ms, p95 49.06 ms (10 iterations). After (`benchmark-after.log`): first 94.41 ms; cached mean 0.01 ms; cold mean **61.06 ms**, p50 43.85 ms, p95 156.79 ms. The after sample had a large outlier while broader tests ran; this small host sample does **not** establish a performance improvement or a reliable regression threshold.
+One case writes actual `goal-result.txt` with the production write tool, reaches idle, automatically continues the goal, reads the file, completes via Code Mode goal tools, and persists a final tool-free answer. Another blocks through the model tool and closes with an explanation. A third pauses while a production request is held, persists to an actual SQLite file, closes/reopens only that isolated test service scope, proves an ordinary prompt leaves it paused, and explicitly resumes to the cap. Scope reopening is same-process persistence evidence, **not process-death or an installed-server restart test**.
 
-Also ran the existing production Chrome first-navigation benchmark, without changing its scenario. It **failed its zero-unknown-frame assertion** on both base UI/client files and feature UI/client files: **1 unknown sample, 0 blank samples**, with metrics collected. Raw metrics/logs preserved as `app-benchmark-{baseline,final}.{json,log}`. First/stable destination timing from a single run is not a reliable comparison. The base comparison temporarily restored only the three changed UI/client files and restored all feature bytes afterward; it was an app baseline, not a whole-Core baseline. Initial failed launch attempts (missing Playwright browser, sandbox launch restriction, missing ffmpeg) are preserved in logs. Installed Chrome ran in a separate profile; optional video was disabled to avoid downloading ffmpeg.
+Two reproduced runner bugs were fixed. The first exited after Code Mode completed the goal: two provider requests, completed tool result, then idle without a final answer (`followup-missing-final-evidence.json`, raw `followup-server-diagnostics.log`). The second let a user prompt admitted during closing-context preparation inherit disabled tools (`followup-core-user-boundary-first.log`). The final Core suite verifies new user work executes tools while the completed goal stays complete.
 
-Broader Client suite: **212 pass, 4 fail**. All **four failures reproduced unchanged with base files** (`client-baseline-tests.log`, 46 pass / 4 fail across the three implicated suites): existing DateTime input expectation, import-boundary expectation, existing file-write API inventory expectation, existing interrupt query expectation. These were not changed to conceal failures.
+## Benchmarks and preserved failures
 
-Broader CLI suite did not finish: two isolated service-lifecycle convergence cases failed, and the runner was interrupted after stalling. Retained `cli-tests.log`; full CLI suite is **not** claimed passed. Its fixture servers are separate from installed/live servers. Process verification found the task runner and known fixture server PIDs exited after interruption. Focused CLI checks passed independently.
+Required follow-up Core location baseline preceded runner changes: first **297.42 ms**, cached mean **0.00 ms**, cold mean **40.61 ms**, p50 **38.13 ms**, p95 **47.59 ms**, ten iterations (`followup-core-before.log`). The serial final sample after runner fixes: first **88.72 ms**, cached mean **0.00 ms**, cold mean **34.81 ms**, p50 **32.78 ms**, p95 **44.28 ms** (`followup-core-after-settled.log`). Small cache-sensitive local samples do not establish a speed improvement. Command: `bun script/benchmark-location.ts /private/tmp/opencode-v2-goal --iterations 10` from Core, using isolated XDG/TMPDIR paths and `OPENCODE_DB=:memory:`.
+
+Initial feature Core measurements remain in `benchmark-before.log` and `benchmark-after.log`; the latter had an outlier while broader tests ran. Initial production Chrome first-navigation runs failed the zero-unknown-frame assertion for both base and feature UI/client files: one unknown sample, zero blank samples, with metrics (`app-benchmark-{baseline,final}.{json,log}`). This was a UI/client baseline, not a whole-Core baseline.
+
+The follow-up production Chrome session-entry scenario failed its existing `expect(writes).toEqual([])` check before reporting metrics (`followup-app-before-escalated.log`). A warm-tab attempt selected no tests (`followup-app-before-tabs.log`). Additional Chrome benchmarking first hit a content-filter/disconnected approval-review stream, then **automatic approval review explicitly rejected the repeat of the blocked action**. No subsequent Chrome attempt or alternate browser workaround was made. A complete browser before/after comparison remains unavailable; Happy DOM supplies functional component evidence only. `followup-approval-limit.txt` records the limitation.
+
+Broader initial Client suite: **212 pass, 4 fail**; all four failures reproduced with base files (`client-baseline-tests.log`). They concern existing DateTime expectations, import boundaries, file-write API inventory and interrupt query expectations. Broader initial CLI suite stalled after two service-lifecycle convergence failures and was interrupted (`cli-tests.log`). Neither full suite is claimed green; focused final checks pass independently.
+
+Iteration failures remain in logs: TUI dynamic dialog mounting and filter-reset timing were fixed; the test corrected Ctrl+A semantics and a narrow-terminal line-wrap assertion. Expanded Server typecheck fixed possibly undefined ports by using the bound origin. Happy DOM socket attempts failed CORS/preload Response identity; the keeper uses the generated-client transport seam. The first CLI fixture used an unsupported boot option/wrong client shape; the final keeper protects CLI parsing and payloads. Failed evidence is retained separately from passing results.
 
 ## Remaining limitations
 
-- No token/cost budget accounting, timed goals, goal history browser, background scheduler, or cross-process/cluster ownership. Cap counts automatic idle follow-ups; user control relies on existing coordinator semantics.
-- Goal status is durable while armed/disarmed is not surfaced as a separate live UI field; explicit Resume remains available for active goals after restart/interrupt.
-- Editing an objective preserves lifecycle and does not interrupt an in-flight model request. The next context load includes the current goal. Active forks intentionally require separate goal creation.
-- Model completion remains a semantic assertion; there is no general automatic objective verifier.
-- Dedicated TUI controls/story, interactive goal-bar browser regression, packaged desktop/mobile builds and live user-session execution were **not run**. The production browser benchmark used mock session fixtures and is not live-server evidence.
-- Full client/CLI suites and the browser frame benchmark are not all green; failures are bounded and disclosed above. No merge/push, signing, installation, packaging or release authorization is claimed.
+- No token/cost budget, timed goals, goal history browser, scheduler or clustered/cross-process ownership. Caps count automatic idle follow-ups.
+- Armed/disarmed state is not a separate live UI field. Explicit Resume remains available for active goals after restart/interrupt.
+- Objective edits preserve lifecycle and do not interrupt running model requests. The next context load includes the updated objective.
+- Model completion is a semantic assertion; there is no general automatic verifier.
+- `/goal` opens the native management dialog; upstream argument syntax `/goal <objective>` is not implemented. The shared app has no explicit Block button; models/TUI/API/CLI can block.
+- No dedicated TUI story, Chrome goal-bar interaction, packaged desktop/mobile build, paid-provider run or live installed-user-session execution. Existing apps/servers were not restarted. No packaging, release, signing, merge or push claim.
 
 ## Changed paths
 
 - `packages/app/src/runtime/i18n/en.ts`
 - `packages/app/src/session/goal-bar.tsx`
 - `packages/app/src/session/screen.tsx`
+- `packages/app/test-browser/fixtures/session-goal.ts`
+- `packages/app/test-browser/session-goal.test.ts`
 - `packages/cli/src/commands/commands.ts`
 - `packages/cli/src/commands/handlers/session/goal.ts`
 - `packages/cli/src/index.ts`
+- `packages/cli/test/session-goal.test.ts`
 - `packages/client/src/effect/api/api.ts`
 - `packages/client/src/effect/generated/client.ts`
 - `packages/client/src/promise/generated/client.ts`
@@ -85,6 +105,7 @@ Broader CLI suite did not finish: two isolated service-lifecycle convergence cas
 - `packages/core/src/session/message-updater.ts`
 - `packages/core/src/session/projector.ts`
 - `packages/core/src/session/runner/llm.ts`
+- `packages/core/src/session/runner/step.ts`
 - `packages/core/src/session/sql.ts`
 - `packages/core/src/session/transfer.ts`
 - `packages/core/src/tool/plugin/goal.ts`
@@ -101,9 +122,16 @@ Broader CLI suite did not finish: two isolated service-lifecycle convergence cas
 - `packages/schema/test/event-manifest.test.ts`
 - `packages/schema/test/session-goal.test.ts`
 - `packages/server/src/handlers/session.ts`
+- `packages/server/test/session-goal-execution.test.ts`
 - `packages/server/test/session-goal.test.ts`
 - `packages/server/test/session-import.test.ts`
+- `packages/tui/src/component/dialog-session-goal.tsx`
+- `packages/tui/src/config/keybind.ts`
+- `packages/tui/src/routes/session/index.tsx`
+- `packages/tui/test/session-goal.test.tsx`
 
 ## Review and cleanup
 
-Commit message: `feat(core): add persistent session goals`. Final source and evidence remain in this checkout for review. The retained artifacts are this report, usage/provenance README, upstream license, command logs, benchmark JSON and reproducibility evidence. Removed the cloned upstream, scratch implementation scripts, temporary benchmark config/results/profiles, build output, and this session's dependency/typecheck caches. No parent checkout or shared Bun tools were removed.
+Initial commit: `522ac7d873`. Follow-up: `fix(goal): finish runs and add TUI controls`. Source, report, usage/provenance README, license, selected verification/failure evidence and benchmark data remain here for review. Raw validation logs remain locally under this artifact directory. Lossless `.log.gz` archives of the TUI and failed Chrome logs are committed to preserve terminal whitespace; the validation manifest records hashes of their original uncompressed bytes.
+
+The follow-up removes its task-installed root/package dependencies, build/typecheck/turbo caches, isolated XDG/test data, cloned Effect reference and temporary browser config/results. `followup-cleanup.txt` records actual removed paths. The read-only process check found only its own command using this checkout before cleanup. Shared Bun tools and the parent checkout were not modified.

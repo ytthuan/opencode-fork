@@ -1,6 +1,6 @@
 # Persistent session goals
 
-A goal is explicit, session-owned intent. Ordinary prompts never create a goal. Use the shared web/desktop app's **Set goal** control or the CLI:
+A goal is explicit, session-owned intent. Ordinary prompts never create a goal. Use **Set goal** in the shared web/desktop app, select **Manage persistent goal** in the TUI command palette, or type `/goal` and select it from autocomplete. The TUI command opens the goal dialog; objective text is entered in that dialog. The CLI also supports explicit goal controls:
 
 ```sh
 opencode session goal ses_example --action create --objective "Ship the migration" --max-rounds 20
@@ -14,7 +14,7 @@ opencode session goal ses_example --action clear
 
 Commands use the normal server connection parameters. Goal creation and resume admit a durable synthetic input and wake the existing session coordinator. The default cap is 256 automatic follow-up rounds; the initial explicit input is separate. A round can contain multiple model steps and tools. The selected agent's step allowance still applies and blocks a goal when exhausted.
 
-The app exposes the objective, durable status, automatic round count/cap, and blocker reason. Edit preserves status. Pause, completion, blocking and clearing stop goal-driven continuation at the next safe boundary and cancel undelivered goal inputs. They do not abort an already running model request or tool; use the existing Stop control when interruption is necessary. Ordinary queued prompts stay available.
+The app and TUI expose the objective, durable status, automatic round count/cap, and blocker reason. The TUI dialog supports creation, objective and cap edits, pause, resume, block with a reason, completion, and clearing. Its optional keybind is `session.goal` (unbound by default); the status strip is clickable. Stale updates show an error and reload the latest goal before a user retries. Edit preserves status. Pause, completion, blocking and clearing stop goal-driven continuation at the next safe boundary and cancel undelivered goal inputs. They do not abort an already running model request or tool; use the existing Stop control when interruption is necessary. When completion or blocking leaves a tool continuation, the runner allows one closing response with tools disabled, grounded in the session results. Newly promoted user input takes over normal execution and keeps tools available. Ordinary queued prompts stay available.
 
 `active`, `paused`, `blocked`, and `complete` persist in SQLite and session exports. Automatic continuation authority is process-local: restart, failure and interruption disarm it, and imported goals do not acquire continuation authority. Explicit **Resume goal** rearms an active, paused or blocked goal. Completed goals may be replaced or cleared but cannot resume. A fork begins without a goal; it requires separate user intent.
 

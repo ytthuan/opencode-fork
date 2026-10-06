@@ -1,0 +1,7 @@
+$ bun run script/test.ts test/session-runner.test.ts test/session-goal.test.ts test/session-execution.test.ts test/session-runner-retry.test.ts test/session-instructions.test.ts --timeout "30000"
+bun test v1.4.2 (744846f84)
+
+ 277 pass
+ 0 fail
+ 1346 expect() calls
+Ran 277 tests across 5 files. [3.74s]

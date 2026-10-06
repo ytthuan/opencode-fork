@@ -55,6 +55,7 @@ import { useClient } from "../../context/client"
 import { useEditorContext } from "../../context/editor"
 import { useDialog } from "../../ui/dialog"
 import { DialogSelect } from "../../ui/dialog-select"
+import { DialogSessionGoal, SessionGoalStatus } from "../../component/dialog-session-goal"
 import { DialogSessionRename } from "../../component/dialog-session-rename"
 import { DialogImagePreview } from "../../component/dialog-image-preview"
 import { statusLabel } from "../../component/dialog-workspace-file-changes"
@@ -896,6 +897,13 @@ export function Session(props: {
       run: () => unavailable("Sharing"),
     },
     {
+      title: "Manage persistent goal",
+      id: "session.goal",
+      group: "Session",
+      slash: { name: "goal" },
+      run: () => dialog.replace(() => <DialogSessionGoal sessionID={route.sessionID} />),
+    },
+    {
       title: "Rename session",
       id: "session.rename",
       group: "Session",
@@ -1446,6 +1454,14 @@ export function Session(props: {
                 <QueuedPromptDock prompts={queuedPrompts()} onOpen={openQueuedPrompts} />
               </Show>
               <Slot path="session.composer.top" input={{ sessionID: route.sessionID }} />
+              <Show when={session()}>
+                {(current) => (
+                  <SessionGoalStatus
+                    session={current()}
+                    onOpen={() => dialog.replace(() => <DialogSessionGoal sessionID={route.sessionID} />)}
+                  />
+                )}
+              </Show>
               <Composer
                 sessionID={route.sessionID}
                 open={composer.open || (!!session()?.parentID && forms().length === 0)}

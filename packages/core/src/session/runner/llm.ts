@@ -160,11 +160,15 @@ const layer = Layer.effect(
                 force = false
                 continue
               }
-              if (goalDriving && !pending) {
-                const goal = yield* SessionGoal.get(db, sessionID).pipe(Effect.orDie)
-                if (!goal || goal.status !== "active" || !SessionGoal.isArmed(sessionID, goal))
-                  return DrainResult.Complete()
-              }
+              const goal = goalDriving && !pending ? yield* SessionGoal.get(db, sessionID).pipe(Effect.orDie) : null
+              const stopped =
+                goalDriving && !pending && (!goal || goal.status !== "active" || !SessionGoal.isArmed(sessionID, goal))
+              // A terminal goal tool still needs one response to address the user with its result.
+              const wrapup =
+                stopped && continuing && goal && (goal.status === "complete" || goal.status === "blocked")
+                  ? goal
+                  : undefined
+              if (stopped && !wrapup) return DrainResult.Complete()
               if (!force && !continuing && (!pending || (pending.delivery === "queue" && promotable === "steer"))) {
                 if (promotable === "steer" || !(yield* SessionGoal.nextRound(db, bus, sessionID)))
                   return DrainResult.Complete()
@@ -200,7 +204,7 @@ const layer = Layer.effect(
                         return DrainResult.Complete()
                     }
                   }
-                  return { _tag: "Ready" as const, context: loaded }
+                  return { _tag: "Ready" as const, context: loaded, wrapup: promoted > 0 ? undefined : wrapup }
                 }),
               )
               if (ready) return ready
@@ -212,7 +216,7 @@ const layer = Layer.effect(
       while (true) {
         const next = yield* advanceToStep()
         if (next._tag !== "Ready") return next
-        continuing = yield* runStep(next.context, step)
+        continuing = yield* runStep(next.context, step, next.wrapup)
         step++
         force = false
         entering = false
@@ -227,7 +231,11 @@ const layer = Layer.effect(
     })
 
     /** Owns logical Step policy; each attempt owns its streaming, tools, and durable settlement. */
-    const runStep = Effect.fn("SessionRunner.runStep")(function* (first: SessionContext.Loaded, step: number) {
+    const runStep = Effect.fn("SessionRunner.runStep")(function* (
+      first: SessionContext.Loaded,
+      step: number,
+      wrapup?: SessionGoal.Info,
+    ) {
       const sessionID = first.session.id
       let assistantMessageID = SessionMessage.ID.create()
       const retry = yield* SessionRunnerRetry.make(bus, sessionID)
@@ -249,7 +257,9 @@ const layer = Layer.effect(
           agent: loaded.agent.info,
           model: loaded.model,
           tools: loaded.tools,
-          initial: loaded.initial,
+          initial: wrapup
+            ? `${loaded.initial}\n\nThe persistent goal is ${wrapup.status}: ${JSON.stringify(wrapup.objective)}.${wrapup.reason ? ` Blocking condition: ${wrapup.reason}.` : ""} Automatic goal work has ended. Give the user a final response explaining the result, verification, and concrete artifacts established by this session. Describe any remaining blocker and what is needed to continue. Do not perform further work or call tools in this response.`
+            : loaded.initial,
           messages: loaded.messages,
         })
         const prepared = yield* context.request.primary({
@@ -262,7 +272,7 @@ const layer = Layer.effect(
             ? [...transcript.messages, Message.assistant(MAX_STEPS_PROMPT)]
             : transcript.messages,
           // Keep tool definitions on the final Step to preserve the provider's cached prefix.
-          toolChoice: stepLimitReached ? "none" : undefined,
+          toolChoice: stepLimitReached || wrapup ? "none" : undefined,
           webSocket: "session",
           inputTokens: SessionCompaction.estimatePrompt(loaded),
         })

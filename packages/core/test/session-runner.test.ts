@@ -6673,3 +6673,31 @@ it.effect("an active goal cannot reset the agent step allowance", () =>
     expect((yield* s.session.goal(sessionID))?.reason).toContain("step allowance")
   }),
 )
+
+it.effect("user input admitted during goal closing preparation keeps tools enabled", () =>
+  Effect.gen(function* () {
+    const s = yield* setup
+    yield* s.llm.push(
+      TestLLM.tool("goal-finished", "echo", { text: "Goal finished" }),
+      TestLLM.tool("user-work", "echo", { text: "New user work" }),
+      TestLLM.text("New work complete", "text"),
+    )
+    const goal = yield* SessionGoal.create(s.db, s.bus, sessionID, { objective: "Finish goal" })
+    const gate = yield* s.llm.gate
+    const run = yield* s.resume.pipe(Effect.forkChild)
+    yield* gate.started
+    yield* SessionGoal.update(s.db, s.bus, sessionID, { id: goal.id, revision: goal.revision, action: "complete" })
+    const preparing = yield* Deferred.make<void>()
+    const release = yield* Deferred.make<void>()
+    s.systemLoadHook = Deferred.succeed(preparing, undefined).pipe(Effect.andThen(Deferred.await(release)))
+    yield* gate.release
+    yield* Deferred.await(preparing)
+    yield* s.admit("Do this new work")
+    yield* Deferred.succeed(release, undefined)
+    yield* Fiber.join(run)
+    expect(s.requests[1]?.toolChoice).toBeUndefined()
+    expect(s.executions).toEqual(["Goal finished", "New user work"])
+    expect(s.requests).toHaveLength(3)
+    expect((yield* s.session.goal(sessionID))?.status).toBe("complete")
+  }),
+)

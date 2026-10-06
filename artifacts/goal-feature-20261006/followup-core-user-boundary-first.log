@@ -1,0 +1,57 @@
+$ bun run script/test.ts test/session-runner.test.ts --timeout "30000" -t "user input admitted during goal closing preparation"
+bun test v1.4.2 (744846f84)
+
+test/session-runner.test.ts:
+[16:40:08.621] ERROR (#2): 6693 |     yield* gate.release
+6694 |     yield* Deferred.await(preparing)
+6695 |     yield* s.admit("Do this new work")
+6696 |     yield* Deferred.succeed(release, undefined)
+6697 |     yield* Fiber.join(run)
+6698 |     expect(s.requests[1]?.toolChoice).toBeUndefined()
+       ^
+error: expect(received).toBeUndefined()
+
+Received: ToolChoice {
+  type: "none",
+  "~effect/Schema/Class/LLM.ToolChoice": [Getter],
+  toString: [Function: toString],
+  pipe: [Function: pipe],
+}
+
+      at toBeUndefined (unknown:1:1)
+      at /private/tmp/opencode-v2-goal/packages/core/test/session-runner.test.ts:6698:39
+
+6693 |     yield* gate.release
+6694 |     yield* Deferred.await(preparing)
+6695 |     yield* s.admit("Do this new work")
+6696 |     yield* Deferred.succeed(release, undefined)
+6697 |     yield* Fiber.join(run)
+6698 |     expect(s.requests[1]?.toolChoice).toBeUndefined()
+       ^
+error: expect(received).toBeUndefined()
+
+Received: ToolChoice {
+  type: "none",
+  "~effect/Schema/Class/LLM.ToolChoice": [Getter],
+  toString: [Function: toString],
+  pipe: [Function: pipe],
+}
+
+      at toBeUndefined (unknown:1:1)
+      at /private/tmp/opencode-v2-goal/packages/core/test/session-runner.test.ts:6698:39
+      at ~effect/Effect/successCont (/private/tmp/opencode-v2-goal/node_modules/.bun/effect@4.0.0-rc.112/node_modules/effect/dist/internal/effect.js:928:26)
+      at runLoop (/private/tmp/opencode-v2-goal/node_modules/.bun/effect@4.0.0-rc.112/node_modules/effect/dist/internal/effect.js:462:98)
+      at evaluate (/private/tmp/opencode-v2-goal/node_modules/.bun/effect@4.0.0-rc.112/node_modules/effect/dist/internal/effect.js:422:23)
+      at /private/tmp/opencode-v2-goal/node_modules/.bun/effect@4.0.0-rc.112/node_modules/effect/dist/internal/effect.js:781:15
+      at evaluate (/private/tmp/opencode-v2-goal/node_modules/.bun/effect@4.0.0-rc.112/node_modules/effect/dist/internal/effect.js:435:23)
+      at /private/tmp/opencode-v2-goal/node_modules/.bun/effect@4.0.0-rc.112/node_modules/effect/dist/internal/effect.js:781:15
+      at doneUnsafe (/private/tmp/opencode-v2-goal/node_modules/.bun/effect@4.0.0-rc.112/node_modules/effect/dist/Deferred.js:685:15)
+      at settle (/private/tmp/opencode-v2-goal/packages/core/src/session/run-coordinator.ts:119:16)
+(fail) user input admitted during goal closing preparation keeps tools enabled [68.94ms]
+
+ 0 pass
+ 227 filtered out
+ 1 fail
+ 1 expect() calls
+Ran 1 test across 1 file. [513.00ms]
+error: script "test" exited with code 1

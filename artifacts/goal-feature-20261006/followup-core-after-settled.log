@@ -1,0 +1,5 @@
+Location: /private/tmp/opencode-v2-goal
+Iterations: 10
+first        mean 88.72 ms  min 88.72 ms  p50 88.72 ms  p95 88.72 ms  max 88.72 ms
+cached       mean 0.00 ms  min 0.00 ms  p50 0.00 ms  p95 0.02 ms  max 0.02 ms
+cold         mean 34.81 ms  min 30.70 ms  p50 32.78 ms  p95 44.28 ms  max 44.28 ms

@@ -1,5 +1,6 @@
-import { Splash } from "@opencode/ui/logo"
-import { Wordmark } from "@opencode/ui/wordmark"
+import emblem from "../../../../ui/src/assets/identity/emblem.png"
+import light from "../../../../ui/src/assets/identity/welcome-light.webp"
+import dark from "../../../../ui/src/assets/identity/welcome-dark.webp"
 import type { Platform } from "@opencode/app/desktop"
 import { onCleanup, onMount, Show } from "solid-js"
 import { createStore } from "solid-js/store"
@@ -58,7 +59,7 @@ export function LoadingSplash(props: {
             "bg-v2-background-bg-base": !props.deep,
           }}
         >
-          <Splash class="w-16 h-20 opacity-50 animate-pulse" />
+          <img src={emblem} width="64" height="64" alt="" aria-hidden="true" />
         </div>
       }
     >
@@ -79,13 +80,9 @@ export function LoadingSplash(props: {
       >
         <div class="relative size-full">
           <div class="absolute inset-x-0 top-[25.375%]">
-            <div class="mx-auto w-full max-w-[720px]">
-              <Wordmark
-                outline
-                fade={false}
-                muted={false}
-                class="mx-auto block h-auto w-4/5 text-v2-icon-icon-faint opacity-50"
-              />
+            <div class="startup-welcome mx-auto w-full max-w-[720px]">
+              <img class="welcome-light" src={light} width="768" height="512" alt="" decoding="async" />
+              <img class="welcome-dark" src={dark} width="768" height="512" alt="" decoding="async" />
             </div>
           </div>
         </div>

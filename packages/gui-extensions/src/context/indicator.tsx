@@ -3,8 +3,10 @@ import { ProgressCircle } from "@opencode/ui/progress-circle"
 import { IconButton } from "@opencode/ui/icon-button"
 import { Tooltip } from "@opencode/ui/tooltip"
 import { useI18n } from "@opencode/ui/context/i18n"
+import { TokenUsage } from "@opencode/schema/token-usage"
 import { useExtension, type MountedSession } from "../sdk"
 import { catalogModel, syncCatalog } from "./catalog"
+import { createSessionContextFormatter } from "./format"
 
 function ContextTooltipRow(props: { name: JSX.Element; value: JSX.Element }) {
   return (
@@ -34,6 +36,16 @@ export function SessionContextUsage(props: {
   const info = createMemo(() =>
     props.session.id ? props.session.server.data.session.get(props.session.id) : undefined,
   )
+
+  const formatter = createMemo(() => createSessionContextFormatter(i18n.locale()))
+
+  const cache = createMemo(() => {
+    const tokens = info()?.tokens
+
+    if (!tokens) return
+
+    return { read: tokens.cache.read, input: TokenUsage.input(tokens), hit: TokenUsage.hit(tokens) }
+  })
 
   const usd = createMemo(
     () =>
@@ -94,10 +106,15 @@ export function SessionContextUsage(props: {
   )
 
   const tooltipValue = () => (
-    <div class="flex w-[120px] flex-col gap-2">
+    <div class="flex w-[280px] max-w-[calc(100vw-32px)] flex-col gap-2">
       <ContextTooltipRow name={ctx.t("usage.cost")} value={cost()} />
       <ContextTooltipRow name={ctx.t("usage.usage")} value={`${context()?.usage ?? 0}%`} />
       <ContextTooltipRow name={ctx.t("usage.tokens")} value={context()?.total.toLocaleString(i18n.locale()) ?? "0"} />
+      <ContextTooltipRow name={ctx.t("usage.hit")} value={formatter().rate(cache()?.hit)} />
+      <ContextTooltipRow
+        name={ctx.t("usage.input")}
+        value={`${formatter().number(cache()?.read)} / ${formatter().number(cache()?.input)}`}
+      />
     </div>
   )
 

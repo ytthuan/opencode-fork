@@ -1,5 +1,6 @@
 import { expect, test } from "bun:test"
 import { fetch } from "bun"
+import { Schema } from "effect"
 import { build, createServer } from "vite"
 import { icons } from "./vite.icons"
 import manifest from "./manifest.json" with { type: "json" }
@@ -29,7 +30,7 @@ test.each(["dev", "beta", "prod", "local"])("bundles %s app icons", async (chann
 
     if (file?.type !== "asset") throw new Error(`Missing asset: ${path}`)
 
-    return typeof file.source === "string" ? new TextEncoder().encode(file.source) : file.source
+    return Schema.is(Schema.String)(file.source) ? new TextEncoder().encode(file.source) : file.source
   })
 })
 
@@ -47,7 +48,7 @@ test.each(["dev", "beta", "prod"])("serves %s app icons", async (channel) => {
     await server.listen()
     const address = server.httpServer?.address()
 
-    if (!address || typeof address === "string") throw new Error("Expected an HTTP port")
+    if (!address || Schema.is(Schema.String)(address)) throw new Error("Expected an HTTP port")
 
     await check(channel, async (path) => {
       const response = await fetch(`http://127.0.0.1:${address.port}${path}`)
@@ -78,11 +79,26 @@ async function check(channel: string, read: (path: string) => Promise<Uint8Array
   expect(html).not.toContain("%OPENCODE_")
 
   await Promise.all(
+    [192, 512].map(async (size) => {
+      const data = await read(`/icons/${channel}/web-app-manifest-${size}x${size}.png`)
+      const image = new DataView(data.buffer, data.byteOffset, data.byteLength)
+      expect(image.getUint32(16)).toBe(size)
+      expect(image.getUint32(20)).toBe(size)
+      expect(data[25]).toBe(2) // RGB icons have opaque backgrounds for maskable installation.
+      expect(data).toEqual(
+        new Uint8Array(
+          await Bun.file(
+            `${import.meta.dirname}/../ui/src/assets/favicon/web-app-manifest-${size}x${size}.png`,
+          ).arrayBuffer(),
+        ),
+      )
+    }),
+  )
+
+  await Promise.all(
     Object.entries({
       "favicon.ico": "icon.ico",
       "apple-touch-icon.png": "ios/AppIcon-60x60@3x.png",
-      "web-app-manifest-192x192.png": "android/mipmap-xxxhdpi/ic_launcher.png",
-      "web-app-manifest-512x512.png": "icon.png",
     }).map(async ([name, source]) => {
       const bytes = await read(`/icons/${channel}/${name}`)
       expect(bytes).toEqual(await Bun.file(new URL(`../desktop/icons/${channel}/${source}`, import.meta.url)).bytes())

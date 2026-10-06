@@ -86,7 +86,9 @@ test("Git initialization belongs to its session and refreshes after a session sw
   await expect(pending).toHaveCount(0)
 })
 
-test("a rejected Git init releases its session's button without showing an error in another session", async ({ page }) => {
+test("a rejected Git init releases its session's button without showing an error in another session", async ({
+  page,
+}) => {
   await openSession(page, {
     name: "ReviewInitFailure",
     project: { vcs: undefined },
@@ -289,6 +291,70 @@ for (const listed of [false, true]) {
     )
   })
 }
+
+test("session cache hits use cumulative input and refresh independently of the latest message", async ({ page }) => {
+  const id = "ses_cache_usage"
+  const tokens = { input: 60, output: 900, reasoning: 800, cache: { read: 30, write: 10 } }
+
+  const message = {
+    id: "msg_cache_latest",
+    type: "assistant",
+    agent: "build",
+    model: { id: "test", providerID: "opencode" },
+    content: [{ type: "text", text: "Latest response" }],
+    time: { created: 2, completed: 3 },
+    tokens: { input: 1, output: 1, reasoning: 0, cache: { read: 9, write: 0 } },
+  } satisfies SessionMessageInfo
+
+  const workspace = await openSession(page, {
+    name: "CacheUsage",
+    sessions: [{ id, tokens }],
+    pageMessages: () => ({ items: [message] }),
+  })
+
+  const button = page.getByRole("button", { name: "View context usage", exact: true })
+  const tooltip = page.getByRole("tooltip")
+  await button.hover()
+  await expect(tooltip.getByText("Session cache hit", { exact: true }).locator("..")).toHaveText("Session cache hit30%")
+  await expect(tooltip.getByText("Cached / input tokens", { exact: true }).locator("..")).toHaveText(
+    "Cached / input tokens30 / 100",
+  )
+  await button.click()
+  const panel = page.locator("#review-panel")
+  const rate = panel.getByText("Session Cache Hit Rate", { exact: true }).locator("..")
+  const input = panel.getByText("Session Cached / Input Tokens", { exact: true }).locator("..")
+  await expect(rate).toHaveText("Session Cache Hit Rate30%")
+  await expect(input).toHaveText("Session Cached / Input Tokens30 / 100")
+
+  const update = async (tokens: typeof message.tokens, seq: number) =>
+    workspace.push([
+      {
+        id: `evt_cache_usage_${seq}`,
+        type: "session.usage.updated",
+        created: seq + 3,
+        data: { sessionID: id, cost: 0, tokens },
+      },
+    ])
+
+  await update({ input: 80, output: 900, reasoning: 800, cache: { read: 100, write: 20 } }, 1)
+  await expect(rate).toHaveText("Session Cache Hit Rate50%")
+  await expect(input).toHaveText("Session Cached / Input Tokens100 / 200")
+  // The current-context counts remain tied to the latest assistant message.
+  await expect(panel.getByText("Cache Tokens (read/write)", { exact: true }).locator("..")).toHaveText(
+    "Cache Tokens (read/write)9 / 0",
+  )
+  await update({ input: 0, output: 900, reasoning: 800, cache: { read: 0, write: 0 } }, 2)
+  await expect(rate).toHaveText("Session Cache Hit Rate—")
+  await expect(input).toHaveText("Session Cached / Input Tokens0 / 0")
+  await update({ input: 100, output: 900, reasoning: 800, cache: { read: 0, write: 0 } }, 3)
+  await expect(rate).toHaveText("Session Cache Hit Rate0%")
+
+  await page.setViewportSize({ width: 390, height: 844 })
+  await page.getByRole("button", { name: "More options", exact: true }).click()
+  await page.getByRole("menuitem", { name: "Usage", exact: true }).click()
+  const mobile = page.getByText("Session Cache Hit Rate", { exact: true }).locator("..").filter({ visible: true })
+  await expect(mobile).toHaveText("Session Cache Hit Rate0%")
+})
 
 test("context closes the side region only when its button opened it", async ({ page }) => {
   // A /btw tab saved before extensions must not linger as a hidden tab that keeps the region open.

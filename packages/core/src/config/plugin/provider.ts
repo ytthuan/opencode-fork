@@ -120,6 +120,7 @@ export const Plugin = define({
             if (config.capabilities !== undefined)
               model.capabilities = Model.mergeCapabilities(config.capabilities, model.capabilities)
             if (config.variants !== undefined) {
+              if (config.variants_mode === "replace") model.variants = []
               model.variants ??= []
               for (const variant of config.variants) {
                 let existing = model.variants.find((item) => item.id === variant.id)

@@ -319,9 +319,11 @@ test("shows thinking on hover or a non-default selection while preserving keyboa
   await expect(control).toHaveText("default")
   await expect(control).toHaveCSS("opacity", "0")
 
-  // The single-agent fixture has only Add and Model before the thinking trigger.
+  // Keep each visible control in the keyboard path before the thinking trigger.
   await page.keyboard.press("Tab")
   await expect(composer.getByRole("button", { name: "Add images and files" })).toBeFocused()
+  await page.keyboard.press("Tab")
+  await expect(composer.getByRole("button", { name: "Choose agent" })).toBeFocused()
   await page.keyboard.press("Tab")
   await expect(composer.getByRole("button", { name: "Thinking Model" })).toBeFocused()
   await page.keyboard.press("Tab")
@@ -334,4 +336,39 @@ test("shows thinking on hover or a non-default selection while preserving keyboa
   await expect(control).toBeFocused()
   await page.keyboard.press("Tab")
   await expect(control).toHaveCSS("opacity", "0")
+})
+
+test.describe("touch composer controls", () => {
+  test.use({ viewport: { width: 390, height: 844 }, isMobile: true, hasTouch: true })
+
+  test("keeps default effort visible and opens mode and effort controls without overflow", async ({ page }) => {
+    await openSession(page, {
+      name: "ComposerTouch",
+      provider: provider({ id: "thinking-model", name: "Thinking Model", variants: { high: {} } }),
+    })
+    const composer = page.locator('[data-component="composer"]')
+    const controls = composer.locator('[data-slot="composer-controls"]')
+    const effort = composer.getByRole("button", { name: "Choose model variant" })
+    const mode = composer.getByRole("button", { name: "Shell command", exact: true })
+    const agent = composer.getByRole("button", { name: "Choose agent" })
+    await expect(agent.locator('use[href="#opencode-v2-icon-subagent"]')).toBeAttached()
+    await agent.tap()
+    await page.getByRole("menuitemradio", { name: "build", exact: true }).tap()
+    await expect(effort).toHaveText("default")
+    await expect(effort).toHaveCSS("opacity", "1")
+    await expect(effort.locator('use[href="#opencode-v2-icon-brain"]')).toBeAttached()
+    await expect(mode.locator('use[href="#opencode-v2-icon-terminal"]')).toBeAttached()
+    await expect.poll(() => controls.evaluate((element) => element.scrollWidth <= element.clientWidth)).toBe(true)
+    await expect.poll(() => page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true)
+    await effort.tap()
+    await page.getByRole("menuitemradio", { name: "high", exact: true }).tap()
+    await expect(effort).toHaveText("high")
+    await mode.tap()
+    await expect(composer.locator('[data-component="composer-editor"]')).toHaveAttribute("dir", "ltr")
+    const exit = composer.getByRole("button", { name: "Exit", exact: true })
+    await expect(exit.locator('use[href="#opencode-v2-icon-terminal"]')).toBeAttached()
+    await exit.tap()
+    await expect(effort).toHaveText("high")
+    await expect(effort).toHaveCSS("opacity", "1")
+  })
 })

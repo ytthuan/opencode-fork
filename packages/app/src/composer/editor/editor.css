@@ -25,9 +25,56 @@
   );
 }
 
-[data-component="composer"]:not(:hover) .composer-variant-default:not(:focus-visible, [data-expanded]) {
-  opacity: 0;
-  pointer-events: none;
+/* Default effort stays discoverable on touch screens and narrow layouts. */
+@media (min-width: 640px) and (hover: hover) and (pointer: fine) {
+  [data-component="composer"]:not(:hover) .composer-variant-default:not(:focus-visible, [data-expanded]) {
+    opacity: 0;
+    pointer-events: none;
+  }
+}
+
+[data-slot="composer-controls"] .composer-mode {
+  display: none;
+}
+
+@media (max-width: 639px) {
+  [data-slot="composer-controls"] {
+    margin-inline: 0 4px;
+  }
+
+  [data-slot="composer-controls"] > div {
+    width: 100%;
+    gap: 2px;
+  }
+
+  [data-slot="composer-controls"] [data-component="button-v2"] {
+    min-width: 0;
+    padding-inline: 4px;
+    gap: 4px;
+  }
+
+  [data-slot="composer-controls"] [data-component="button-v2"]:not(.composer-agent, .composer-effort) {
+    flex: 1;
+    max-width: 120px;
+  }
+
+  [data-slot="composer-controls"] .composer-mode {
+    display: inline-flex;
+    flex: 0 0 28px;
+  }
+
+  [data-slot="composer-controls"] .composer-agent {
+    flex: 0 0 28px;
+  }
+
+  [data-slot="composer-controls"] .composer-agent > span {
+    display: none;
+  }
+
+  [data-slot="composer-controls"] .composer-effort {
+    flex: 0 1 auto;
+    max-width: 88px;
+  }
 }
 
 [data-color-scheme="dark"] [data-component="composer"][data-dock-border-underlay="true"],

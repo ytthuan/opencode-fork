@@ -16,3 +16,12 @@ test("supports zero and large usage totals without rounding", () => {
     }),
   ).toBe(7_000_000_008)
 })
+
+test("cache hits divide cached reads by every input category, excluding output and reasoning", () => {
+  const tokens = { input: 60, output: 900, reasoning: 800, cache: { read: 30, write: 10 } }
+  expect(TokenUsage.input(tokens)).toBe(100)
+  expect(TokenUsage.hit(tokens)).toBe(0.3)
+  expect(TokenUsage.hit({ ...tokens, input: 0, cache: { read: 30, write: 0 } })).toBe(1)
+  expect(TokenUsage.hit({ ...tokens, cache: { read: 0, write: 10 } })).toBe(0)
+  expect(TokenUsage.hit({ ...tokens, input: 0, cache: { read: 0, write: 0 } })).toBeUndefined()
+})

@@ -110,7 +110,11 @@ export class Info extends Schema.Class<Info>("Config.Info")({
 }) {}
 
 export const Patch = Schema.Struct({
-  shell: Schema.NullOr(Schema.String),
+  shell: Schema.NullOr(Schema.String).pipe(optional),
+  providers: Schema.Record(Schema.String, Schema.NullOr(ConfigProvider.Info)).pipe(optional).annotate({
+    description:
+      "Replace each specified provider configuration, or remove it with null; omitted providers are preserved",
+  }),
 }).annotate({ identifier: "Config.Patch" })
 export interface Patch extends Schema.Schema.Type<typeof Patch> {}
 
@@ -118,6 +122,9 @@ export class Document extends Schema.Class<Document>("Config.Document")({
   type: Schema.Literal("document"),
   path: AbsolutePath.pipe(optional),
   info: Info,
+  source: Info.pipe(optional).annotate({
+    description: "Configuration before environment and file substitution; use to preserve references when editing",
+  }),
 }) {}
 
 export class Directory extends Schema.Class<Directory>("Config.Directory")({

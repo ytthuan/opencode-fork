@@ -1,4 +1,5 @@
-import { Logo } from "@opencode/ui/logo"
+import light from "../../../ui/src/assets/identity/welcome-light.webp"
+import dark from "../../../ui/src/assets/identity/welcome-dark.webp"
 import "./wordmark.css"
 
 export function NewSessionWordmark() {
@@ -6,11 +7,11 @@ export function NewSessionWordmark() {
     <div
       data-component="new-session-wordmark"
       aria-hidden="true"
-      class="pointer-events-none mx-auto w-full max-w-[720px] text-v2-background-bg-inverse"
+      class="pointer-events-none mx-auto w-full max-w-[720px]"
     >
-      <div data-slot="wordmark-reveal" class="relative mx-auto w-4/5">
-        <Logo class="block aspect-[720/129] w-full opacity-[0.16]" />
-        <Logo class="wordmark-shimmer absolute inset-0 aspect-[720/129] w-full" />
+      <div data-slot="wordmark-reveal">
+        <img class="welcome-light" src={light} width="768" height="512" alt="" decoding="async" />
+        <img class="welcome-dark" src={dark} width="768" height="512" alt="" decoding="async" />
       </div>
     </div>
   )

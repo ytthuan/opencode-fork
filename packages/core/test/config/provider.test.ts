@@ -48,7 +48,10 @@ describe("ConfigProviderPlugin.Plugin", () => {
                 settings: { compaction: { type: "native" } },
                 models: {
                   native: {},
-                  local: { settings: { compaction: { type: "summary" } }, package: "@opencode/ai/providers/openai/chat" },
+                  local: {
+                    settings: { compaction: { type: "summary" } },
+                    package: "@opencode/ai/providers/openai/chat",
+                  },
                   unsupported: { package: "@opencode/ai/providers/openai/chat" },
                 },
               },
@@ -517,6 +520,41 @@ describe("ConfigProviderPlugin.Plugin", () => {
       ])
     }),
   )
+
+  for (const scenario of [
+    { mode: "merge", variants: [{ id: "low", settings: { reasoningEffort: "low" } }], expected: ["high", "low"] },
+    { mode: "replace", variants: [{ id: "low", settings: { reasoningEffort: "low" } }], expected: ["low"] },
+    { mode: "replace", variants: [], expected: [] },
+  ]) {
+    it.effect(`applies ${scenario.mode} variants with ${scenario.variants.length} configured levels`, () =>
+      Effect.gen(function* () {
+        const providers = yield* Provider.Service
+        const models = yield* Model.Service
+        const providerID = Provider.ID.make("custom")
+        const id = Model.ID.make("reasoning")
+        yield* providers.transform((editor) => {
+          editor.models.update(providerID, id, (model) => {
+            model.variants = [{ id: Model.VariantID.make("high"), settings: { reasoningEffort: "high" } }]
+          })
+        })
+        yield* addPlugin([
+          new Document({
+            type: "document",
+            info: decode({
+              providers: {
+                custom: {
+                  package: "@opencode/ai/providers/openai-compatible/responses",
+                  models: { reasoning: { variants_mode: scenario.mode, variants: scenario.variants } },
+                },
+              },
+            }),
+          }),
+        ])
+        const model = required(yield* models.get(providerID, id))
+        expect(model.variants.map((variant) => String(variant.id))).toEqual(scenario.expected)
+      }),
+    )
+  }
 
   it.effect("keeps configured model variant bodies unchanged", () =>
     Effect.gen(function* () {

@@ -1,4 +1,7 @@
 import { Button } from "@opencode/ui/button"
+import { useQuery } from "@tanstack/solid-query"
+import { DialogCustomProvider } from "@/providers/credentials/dialog"
+import { configuredProviders } from "@/providers/credentials/form"
 import { Badge } from "@opencode/ui/badge"
 import { useDialog } from "@opencode/ui/context/dialog"
 import { Icon } from "@opencode/ui/icon"
@@ -8,7 +11,7 @@ import { showToast } from "@/shell/notifications/toast"
 import { popularProviders, useProviders } from "@/providers/catalog/providers"
 import { consoleProviderGroup } from "@/providers/catalog/console"
 import { useIntegrations } from "@/providers/catalog/integrations"
-import { createEffect, createMemo, type Component, For, Show } from "solid-js"
+import { createEffect, createMemo, onCleanup, type Component, For, Show } from "solid-js"
 import { createStore, reconcile } from "solid-js/store"
 import { useLanguage } from "@/runtime/i18n/language"
 import { useServerSDK } from "@/runtime/server/client"
@@ -47,11 +50,34 @@ export const SettingsProviders: Component<{
   const integrations = useIntegrations(() => props.directory)
   const providerConnect = useProviderConnectController()
 
-  const [state, setState] = createStore({
-    disconnecting: {} as Record<string, "removing" | "removed" | "absent" | undefined>,
+  const config = useQuery(() => ({
+    queryKey: [serverSdk.scope, "settings-custom-providers"],
+    enabled: serverSdk.connection.status() === "connected",
+    queryFn: () => serverSdk.api.config.get(),
+  }))
+
+  const custom = createMemo(() => configuredProviders(config.data ?? []))
+  onCleanup(serverSdk.event.on("config.updated", () => void config.refetch()))
+
+  const edit = (id: string) => {
+    const source = custom()[id]
+
+    if (!source) return
+    void dialog.show(() => (
+      <DialogCustomProvider id={id} source={source} directory={props.directory} onSaved={() => void config.refetch()} />
+    ))
+  }
+
+  const [state, setState] = createStore<{
+    disconnecting: Record<string, "removing" | "removed" | "absent" | undefined>
+    consoleExpanded: boolean
+    connecting: boolean
+    credentialID: string | undefined
+  }>({
+    disconnecting: {},
     consoleExpanded: false,
     connecting: false,
-    credentialID: undefined as string | undefined,
+    credentialID: undefined,
   })
 
   const updateDisconnecting = (ids: string[], status: "removing" | "removed" | "absent" | undefined) =>
@@ -260,9 +286,9 @@ export const SettingsProviders: Component<{
           description: language.t("provider.disconnect.toast.disconnected.description", { provider: name }),
         })
       })
-      .catch((err: unknown) => {
+      .catch((cause: unknown) => {
         updateDisconnecting(ids, undefined)
-        const message = err instanceof Error ? err.message : String(err)
+        const message = cause instanceof Error ? cause.message : String(cause)
         showToast({
           title: language.t("common.requestFailed"),
           description: language.tDynamic("provider.disconnect.toast.failed.description", message, { provider: name }),
@@ -282,8 +308,7 @@ export const SettingsProviders: Component<{
     ])
   }
 
-  const accountError = (error: unknown) => {
-    const message = error instanceof Error ? error.message : String(error)
+  const accountError = (message: string) => {
     showToast({ title: language.t("common.requestFailed"), description: message })
   }
 
@@ -301,7 +326,7 @@ export const SettingsProviders: Component<{
           description: language.t("settings.providers.account.switched.description", { account: account.label }),
         }),
       )
-      .catch(accountError)
+      .catch((cause: unknown) => accountError(cause instanceof Error ? cause.message : String(cause)))
       .finally(() => setState("credentialID", undefined))
   }
 
@@ -327,7 +352,7 @@ export const SettingsProviders: Component<{
           ),
         }),
       )
-      .catch(accountError)
+      .catch((cause: unknown) => accountError(cause instanceof Error ? cause.message : String(cause)))
       .finally(() => setState("credentialID", undefined))
   }
 
@@ -405,6 +430,9 @@ export const SettingsProviders: Component<{
             <h2 class="settings-tab-title">{language.t("settings.providers.title")}</h2>
             <span class="text-11-regular text-v2-text-text-muted">{language.t("settings.providers.description")}</span>
           </div>
+          <Button size="normal" variant="ghost-muted" icon="plus-small" onClick={() => connect("_custom")}>
+            {language.t("provider.custom.add")}
+          </Button>
         </div>
       </div>
 
@@ -429,35 +457,46 @@ export const SettingsProviders: Component<{
                             <ProviderModelIcon provider={item} class="settings-provider-icon shrink-0" />
 
                             <div class="settings-provider-main">
-                              <span class="settings-provider-name truncate">
-                                {item.name}
-                              </span>
+                              <span class="settings-provider-name truncate">{item.name}</span>
                               <Badge>{type(item)}</Badge>
                             </div>
                           </div>
-                          <Show
-                            when={canManageAccounts(item)}
-                            fallback={
-                              <Show
-                                when={canDisconnect(item)}
-                                fallback={
-                                  <span class="settings-provider-env-hint">
-                                    {language.t("settings.providers.connected.environmentDescription")}
-                                  </span>
-                                }
+                          <div class="flex shrink-0 items-center gap-1">
+                            <Show when={custom()[item.id]}>
+                              <Button
+                                size="normal"
+                                variant="ghost-muted"
+                                icon="edit"
+                                onClick={() => edit(item.id)}
+                                aria-label={language.t("provider.custom.manage")}
                               >
-                                <Button
-                                  size="normal"
-                                  variant="ghost-muted"
-                                  onClick={() => void disconnect(item, item.name)}
+                                {language.t("common.edit")}
+                              </Button>
+                            </Show>
+                            <Show
+                              when={canManageAccounts(item)}
+                              fallback={
+                                <Show
+                                  when={canDisconnect(item)}
+                                  fallback={
+                                    <span class="settings-provider-env-hint">
+                                      {language.t("settings.providers.connected.environmentDescription")}
+                                    </span>
+                                  }
                                 >
-                                  {language.t("common.disconnect")}
-                                </Button>
-                              </Show>
-                            }
-                          >
-                            <AccountMenu provider={item} />
-                          </Show>
+                                  <Button
+                                    size="normal"
+                                    variant="ghost-muted"
+                                    onClick={() => void disconnect(item, item.name)}
+                                  >
+                                    {language.t("common.disconnect")}
+                                  </Button>
+                                </Show>
+                              }
+                            >
+                              <AccountMenu provider={item} />
+                            </Show>
+                          </div>
                         </div>
                       }
                     >
@@ -556,9 +595,7 @@ export const SettingsProviders: Component<{
 
                     <div class="settings-provider-copy">
                       <div class="settings-provider-main">
-                        <span class="settings-provider-name">
-                          {item.name}
-                        </span>
+                        <span class="settings-provider-name">{item.name}</span>
                         <Show when={item.id === "opencode" || item.id === "opencode-go"}>
                           <Badge>{language.t("dialog.provider.tag.recommended")}</Badge>
                         </Show>

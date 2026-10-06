@@ -25,10 +25,12 @@ it.live("returns ordered config entries for the requested directory", () =>
             { action: "shell", resource: "*", effect: "ask" },
             { action: "shell", resource: "git status", effect: "allow" },
           ],
+          providers: { referenced: { settings: { apiKey: "{file:token.txt}" } } },
           mcp: { servers: { docs: { type: "remote", url: "https://example.com/mcp" } } },
         }),
       ),
     )
+    yield* Effect.promise(() => fs.writeFile(path.join(project, "token.txt"), "synthetic-token"))
     const server = yield* startServer(global)
     const url = new URL("/api/config", server.base)
     url.searchParams.set("location[directory]", project)
@@ -46,6 +48,8 @@ it.live("returns ordered config entries for the requested directory", () =>
       { action: "shell", resource: "git status", effect: "allow" },
     ])
     expect(document?.path).toBe(AbsolutePath.make(config))
+    expect(document?.info.providers?.referenced.settings?.apiKey).toBe("synthetic-token")
+    expect(document?.source?.providers?.referenced.settings?.apiKey).toBe(`{file:${path.join(project, "token.txt")}}`)
     if (!Array.isArray(body)) throw new Error("Expected a config entry array")
     const raw = body.find((entry) => isRecord(entry) && entry["type"] === "document" && entry["path"] === config)
     if (!isRecord(raw) || !isRecord(raw["info"])) throw new Error("Expected a config document")

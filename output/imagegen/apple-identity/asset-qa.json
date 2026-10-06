@@ -1,0 +1,1936 @@
+{
+  "selected": "02-fold.png",
+  "model": "gpt-image-2",
+  "quality": "high",
+  "source_size": [
+    1024,
+    1024
+  ],
+  "derivatives": 212,
+  "provider_logos_unchanged": 105,
+  "packaging_bytes": 11170884,
+  "files": [
+    {
+      "path": "packages/desktop/icons/beta/128x128.png",
+      "size": [
+        128,
+        128
+      ],
+      "bytes": 13368,
+      "sha256": "6832de02dcaa617b120c4b9cc0911236689362fd1616bfe54bb8bd0a664b55b8"
+    },
+    {
+      "path": "packages/desktop/icons/beta/128x128@2x.png",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 40451,
+      "sha256": "ead0df62a8a806d5b031e90a7c06e8d6793d05ebca22565784b4dc7430633f83"
+    },
+    {
+      "path": "packages/desktop/icons/beta/32x32.png",
+      "size": [
+        32,
+        32
+      ],
+      "bytes": 1744,
+      "sha256": "b959a19254e3e6f90ab682da423a2c764af3dec16e0a46663603037a77c34962"
+    },
+    {
+      "path": "packages/desktop/icons/beta/64x64.png",
+      "size": [
+        64,
+        64
+      ],
+      "bytes": 4494,
+      "sha256": "d6c616b52d9aad3c491fe129747c47de3d38d2b98e843bae30367076340e95a6"
+    },
+    {
+      "path": "packages/desktop/icons/beta/Square107x107Logo.png",
+      "size": [
+        107,
+        107
+      ],
+      "bytes": 10159,
+      "sha256": "4168b23132834cca43549a7ec1b66707458acc801dda0fbc984b00d54ea68760"
+    },
+    {
+      "path": "packages/desktop/icons/beta/Square142x142Logo.png",
+      "size": [
+        142,
+        142
+      ],
+      "bytes": 15875,
+      "sha256": "913c9db1dc90fb452a276efaf21135768208fcee1549480a8afff7553468045d"
+    },
+    {
+      "path": "packages/desktop/icons/beta/Square150x150Logo.png",
+      "size": [
+        150,
+        150
+      ],
+      "bytes": 17498,
+      "sha256": "d7cf77cef3224a305fda63e18468c00f53ba3212c0fc9e5a5a855cc5877f80bc"
+    },
+    {
+      "path": "packages/desktop/icons/beta/Square284x284Logo.png",
+      "size": [
+        284,
+        284
+      ],
+      "bytes": 48449,
+      "sha256": "96c09467bbd3041824d8672d3c350a17e9bda449655abb8fd4b5340513e59a6d"
+    },
+    {
+      "path": "packages/desktop/icons/beta/Square30x30Logo.png",
+      "size": [
+        30,
+        30
+      ],
+      "bytes": 1565,
+      "sha256": "cf1a13c299a6d2ae4a2048f5c1d62d804fca1828eb06ef8ebab7b557ea20b977"
+    },
+    {
+      "path": "packages/desktop/icons/beta/Square310x310Logo.png",
+      "size": [
+        310,
+        310
+      ],
+      "bytes": 56611,
+      "sha256": "7a6941a336ec562e434719aa17e7f3a72f7be16c2312569431a3e45d6091edf7"
+    },
+    {
+      "path": "packages/desktop/icons/beta/Square44x44Logo.png",
+      "size": [
+        44,
+        44
+      ],
+      "bytes": 2663,
+      "sha256": "a49dc2a4b17a59ea3d483cb0a82329956619afdba1db23665ae1d9c7a803fcfd"
+    },
+    {
+      "path": "packages/desktop/icons/beta/Square71x71Logo.png",
+      "size": [
+        71,
+        71
+      ],
+      "bytes": 5260,
+      "sha256": "8481dcbde179694a91d87d821dc3848ccd5ee3885fa60e5dad1d27454bffabbb"
+    },
+    {
+      "path": "packages/desktop/icons/beta/Square89x89Logo.png",
+      "size": [
+        89,
+        89
+      ],
+      "bytes": 7372,
+      "sha256": "276d7eec81193b92994dcc975abf5fd2e58c979473cc1d18bcfc7b79bc8a14c0"
+    },
+    {
+      "path": "packages/desktop/icons/beta/StoreLogo.png",
+      "size": [
+        50,
+        50
+      ],
+      "bytes": 3177,
+      "sha256": "02469825de7c19ca1bd803f43d070ee50331799769c9ba2889a7d677d37195bc"
+    },
+    {
+      "path": "packages/desktop/icons/beta/android/mipmap-hdpi/ic_launcher.png",
+      "size": [
+        49,
+        49
+      ],
+      "bytes": 2895,
+      "sha256": "93a105ef0ab2530c1c6c03aa646ae9c0e92f44613309c6a9dd236abf0eaa8c11"
+    },
+    {
+      "path": "packages/desktop/icons/beta/android/mipmap-hdpi/ic_launcher_foreground.png",
+      "size": [
+        162,
+        162
+      ],
+      "bytes": 24968,
+      "sha256": "6d24ccfb176d5bd466a10ba870c0057e4412528c011940b5d173f701abd1276d"
+    },
+    {
+      "path": "packages/desktop/icons/beta/android/mipmap-hdpi/ic_launcher_round.png",
+      "size": [
+        49,
+        49
+      ],
+      "bytes": 3992,
+      "sha256": "0a9782e3663a6789d99addc9fa49e5d593e86ebd7efdf362271253f196c37e3b"
+    },
+    {
+      "path": "packages/desktop/icons/beta/android/mipmap-mdpi/ic_launcher.png",
+      "size": [
+        48,
+        48
+      ],
+      "bytes": 2805,
+      "sha256": "ce08545b734d25d413026958cbb24fd189f3f402856a2f0618c9057cd7226fd0"
+    },
+    {
+      "path": "packages/desktop/icons/beta/android/mipmap-mdpi/ic_launcher_foreground.png",
+      "size": [
+        108,
+        108
+      ],
+      "bytes": 13379,
+      "sha256": "6d6c9017c97fbd34c6ec561eb9082947404cfd4c7a66787ea288eaa9107007bb"
+    },
+    {
+      "path": "packages/desktop/icons/beta/android/mipmap-mdpi/ic_launcher_round.png",
+      "size": [
+        48,
+        48
+      ],
+      "bytes": 3861,
+      "sha256": "9f8910c34694af009d0097a8555f7cad22c40c42435c7ada48534d782eb6ce97"
+    },
+    {
+      "path": "packages/desktop/icons/beta/android/mipmap-xhdpi/ic_launcher.png",
+      "size": [
+        96,
+        96
+      ],
+      "bytes": 8780,
+      "sha256": "8bb6d06ece421d24e7b33b148005b38aece37649cb2c148d374f5273b59ae146"
+    },
+    {
+      "path": "packages/desktop/icons/beta/android/mipmap-xhdpi/ic_launcher_foreground.png",
+      "size": [
+        216,
+        216
+      ],
+      "bytes": 38601,
+      "sha256": "89266bb729a90efd63578f5886ac3bfc9ffa6ae441dffdf487077f1a8faad114"
+    },
+    {
+      "path": "packages/desktop/icons/beta/android/mipmap-xhdpi/ic_launcher_round.png",
+      "size": [
+        96,
+        96
+      ],
+      "bytes": 11017,
+      "sha256": "bfb0aeed800cc4e9747519354bdf09349b1ae6a015922434e517fd551f746bfd"
+    },
+    {
+      "path": "packages/desktop/icons/beta/android/mipmap-xxhdpi/ic_launcher.png",
+      "size": [
+        144,
+        144
+      ],
+      "bytes": 17261,
+      "sha256": "7144a07bea06291e1b76d7cea6f24cf49d40fe95dc6c7d013a1cc423fcf5a5f5"
+    },
+    {
+      "path": "packages/desktop/icons/beta/android/mipmap-xxhdpi/ic_launcher_foreground.png",
+      "size": [
+        324,
+        324
+      ],
+      "bytes": 75903,
+      "sha256": "2f4aa0d472f2b771683d79225688b2fa395f984c7fb9ad4ed49e4706b0a73602"
+    },
+    {
+      "path": "packages/desktop/icons/beta/android/mipmap-xxhdpi/ic_launcher_round.png",
+      "size": [
+        144,
+        144
+      ],
+      "bytes": 20691,
+      "sha256": "76387d0ecc1019fed32f4163e32642f8e596d9662d7bf4dd59161e7aa59f95dd"
+    },
+    {
+      "path": "packages/desktop/icons/beta/android/mipmap-xxxhdpi/ic_launcher.png",
+      "size": [
+        192,
+        192
+      ],
+      "bytes": 27463,
+      "sha256": "492788401f6c6bc72fcd44f43d5681e752965d252c021da096cbad78cb18dddd"
+    },
+    {
+      "path": "packages/desktop/icons/beta/android/mipmap-xxxhdpi/ic_launcher_foreground.png",
+      "size": [
+        432,
+        432
+      ],
+      "bytes": 125626,
+      "sha256": "ee1f8ca3f69222699b687251330fe48e2bebd75aa2471cc94be4a242681a5a66"
+    },
+    {
+      "path": "packages/desktop/icons/beta/android/mipmap-xxxhdpi/ic_launcher_round.png",
+      "size": [
+        192,
+        192
+      ],
+      "bytes": 32410,
+      "sha256": "47648b27d749bd85891a258a62a6226915715c0107005727f3efebb77f880356"
+    },
+    {
+      "path": "packages/desktop/icons/beta/dock.png",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 40451,
+      "sha256": "ead0df62a8a806d5b031e90a7c06e8d6793d05ebca22565784b4dc7430633f83"
+    },
+    {
+      "path": "packages/desktop/icons/beta/icon.icns",
+      "size": [
+        1024,
+        1024
+      ],
+      "bytes": 1067030,
+      "sha256": "5da88f5d05a82186edb830b06b9c2e1a2522b6bbadf30365c07f859ad9d9d632"
+    },
+    {
+      "path": "packages/desktop/icons/beta/icon.ico",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 70431,
+      "sha256": "cb738e01a2206c939e3fc8f8a93e37c0bb50d247c373c59d9b80b00bec43e5a8"
+    },
+    {
+      "path": "packages/desktop/icons/beta/icon.png",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 144951,
+      "sha256": "0fb1487785922a87e8938b953f09b59d47c78be1e3fc46693a617674c32b09bd"
+    },
+    {
+      "path": "packages/desktop/icons/beta/ios/AppIcon-20x20@1x.png",
+      "size": [
+        20,
+        20
+      ],
+      "bytes": 759,
+      "sha256": "781411397381a8bd9957864da4880d32fba63319fa4348b82d7f7cacd444d942"
+    },
+    {
+      "path": "packages/desktop/icons/beta/ios/AppIcon-20x20@2x-1.png",
+      "size": [
+        40,
+        40
+      ],
+      "bytes": 2120,
+      "sha256": "2863297505be958a63c6c418a691880147afd27933742644fc5c8d3ce0c0c9f6"
+    },
+    {
+      "path": "packages/desktop/icons/beta/ios/AppIcon-20x20@2x.png",
+      "size": [
+        40,
+        40
+      ],
+      "bytes": 2120,
+      "sha256": "2863297505be958a63c6c418a691880147afd27933742644fc5c8d3ce0c0c9f6"
+    },
+    {
+      "path": "packages/desktop/icons/beta/ios/AppIcon-20x20@3x.png",
+      "size": [
+        60,
+        60
+      ],
+      "bytes": 3977,
+      "sha256": "b113fa576d52ac525bb237785ba3a08f07560b0441a361a95ed19c7d4021a833"
+    },
+    {
+      "path": "packages/desktop/icons/beta/ios/AppIcon-29x29@1x.png",
+      "size": [
+        29,
+        29
+      ],
+      "bytes": 1295,
+      "sha256": "a9d601c1f4e18b886ad3c6a4d66f0f0cc73ae936710b7d7dd5743510a4373a8c"
+    },
+    {
+      "path": "packages/desktop/icons/beta/ios/AppIcon-29x29@2x-1.png",
+      "size": [
+        58,
+        58
+      ],
+      "bytes": 3792,
+      "sha256": "a7d0c83611cc58046a425a742da183ba119b3d7bdcbf570372825cb512021232"
+    },
+    {
+      "path": "packages/desktop/icons/beta/ios/AppIcon-29x29@2x.png",
+      "size": [
+        58,
+        58
+      ],
+      "bytes": 3792,
+      "sha256": "a7d0c83611cc58046a425a742da183ba119b3d7bdcbf570372825cb512021232"
+    },
+    {
+      "path": "packages/desktop/icons/beta/ios/AppIcon-29x29@3x.png",
+      "size": [
+        87,
+        87
+      ],
+      "bytes": 7429,
+      "sha256": "7b99d6b2429a34aa33671a67532461a727eab1a317d70a021cfa8832eedda731"
+    },
+    {
+      "path": "packages/desktop/icons/beta/ios/AppIcon-40x40@1x.png",
+      "size": [
+        40,
+        40
+      ],
+      "bytes": 2120,
+      "sha256": "2863297505be958a63c6c418a691880147afd27933742644fc5c8d3ce0c0c9f6"
+    },
+    {
+      "path": "packages/desktop/icons/beta/ios/AppIcon-40x40@2x-1.png",
+      "size": [
+        80,
+        80
+      ],
+      "bytes": 6414,
+      "sha256": "a49761befbc5e91cb8b0d17a6b061d5d8acba26ef17da9ff21748e639816086c"
+    },
+    {
+      "path": "packages/desktop/icons/beta/ios/AppIcon-40x40@2x.png",
+      "size": [
+        80,
+        80
+      ],
+      "bytes": 6414,
+      "sha256": "a49761befbc5e91cb8b0d17a6b061d5d8acba26ef17da9ff21748e639816086c"
+    },
+    {
+      "path": "packages/desktop/icons/beta/ios/AppIcon-40x40@3x.png",
+      "size": [
+        120,
+        120
+      ],
+      "bytes": 12810,
+      "sha256": "c85cd3ff890528d15688a0ec796f2ed8cc1b9d62c677d959e57a8e902e488d38"
+    },
+    {
+      "path": "packages/desktop/icons/beta/ios/AppIcon-512@2x.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "bytes": 694251,
+      "sha256": "86f7f3af78783f89c68f811403d7be9c4ba3ed34b87d22f3c40bc9de9a2f2bee"
+    },
+    {
+      "path": "packages/desktop/icons/beta/ios/AppIcon-60x60@2x.png",
+      "size": [
+        120,
+        120
+      ],
+      "bytes": 12810,
+      "sha256": "c85cd3ff890528d15688a0ec796f2ed8cc1b9d62c677d959e57a8e902e488d38"
+    },
+    {
+      "path": "packages/desktop/icons/beta/ios/AppIcon-60x60@3x.png",
+      "size": [
+        180,
+        180
+      ],
+      "bytes": 24659,
+      "sha256": "1d6f2c50951d80853abcdf23d4e22e8c440642c0639384e371d99f00c0c0d00e"
+    },
+    {
+      "path": "packages/desktop/icons/beta/ios/AppIcon-76x76@1x.png",
+      "size": [
+        76,
+        76
+      ],
+      "bytes": 5878,
+      "sha256": "56cc165b5d5d4e1a67cc92a89d0884f3c8bf4addc4238a80e81848ca75adcb99"
+    },
+    {
+      "path": "packages/desktop/icons/beta/ios/AppIcon-76x76@2x.png",
+      "size": [
+        152,
+        152
+      ],
+      "bytes": 18940,
+      "sha256": "b7422e13c0bd7b44190fbc438ef4ecd45ec684dd4654387c3380e2964d3a795e"
+    },
+    {
+      "path": "packages/desktop/icons/beta/ios/AppIcon-83.5x83.5@2x.png",
+      "size": [
+        167,
+        167
+      ],
+      "bytes": 21940,
+      "sha256": "45604aca46a7b68caadc26468cf2ae0a658c88bf059c6877c88361ee204e1a79"
+    },
+    {
+      "path": "packages/desktop/icons/dev/128x128.png",
+      "size": [
+        128,
+        128
+      ],
+      "bytes": 13368,
+      "sha256": "6832de02dcaa617b120c4b9cc0911236689362fd1616bfe54bb8bd0a664b55b8"
+    },
+    {
+      "path": "packages/desktop/icons/dev/128x128@2x.png",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 40451,
+      "sha256": "ead0df62a8a806d5b031e90a7c06e8d6793d05ebca22565784b4dc7430633f83"
+    },
+    {
+      "path": "packages/desktop/icons/dev/32x32.png",
+      "size": [
+        32,
+        32
+      ],
+      "bytes": 1744,
+      "sha256": "b959a19254e3e6f90ab682da423a2c764af3dec16e0a46663603037a77c34962"
+    },
+    {
+      "path": "packages/desktop/icons/dev/64x64.png",
+      "size": [
+        64,
+        64
+      ],
+      "bytes": 4494,
+      "sha256": "d6c616b52d9aad3c491fe129747c47de3d38d2b98e843bae30367076340e95a6"
+    },
+    {
+      "path": "packages/desktop/icons/dev/Square107x107Logo.png",
+      "size": [
+        107,
+        107
+      ],
+      "bytes": 10159,
+      "sha256": "4168b23132834cca43549a7ec1b66707458acc801dda0fbc984b00d54ea68760"
+    },
+    {
+      "path": "packages/desktop/icons/dev/Square142x142Logo.png",
+      "size": [
+        142,
+        142
+      ],
+      "bytes": 15875,
+      "sha256": "913c9db1dc90fb452a276efaf21135768208fcee1549480a8afff7553468045d"
+    },
+    {
+      "path": "packages/desktop/icons/dev/Square150x150Logo.png",
+      "size": [
+        150,
+        150
+      ],
+      "bytes": 17498,
+      "sha256": "d7cf77cef3224a305fda63e18468c00f53ba3212c0fc9e5a5a855cc5877f80bc"
+    },
+    {
+      "path": "packages/desktop/icons/dev/Square284x284Logo.png",
+      "size": [
+        284,
+        284
+      ],
+      "bytes": 48449,
+      "sha256": "96c09467bbd3041824d8672d3c350a17e9bda449655abb8fd4b5340513e59a6d"
+    },
+    {
+      "path": "packages/desktop/icons/dev/Square30x30Logo.png",
+      "size": [
+        30,
+        30
+      ],
+      "bytes": 1565,
+      "sha256": "cf1a13c299a6d2ae4a2048f5c1d62d804fca1828eb06ef8ebab7b557ea20b977"
+    },
+    {
+      "path": "packages/desktop/icons/dev/Square310x310Logo.png",
+      "size": [
+        310,
+        310
+      ],
+      "bytes": 56611,
+      "sha256": "7a6941a336ec562e434719aa17e7f3a72f7be16c2312569431a3e45d6091edf7"
+    },
+    {
+      "path": "packages/desktop/icons/dev/Square44x44Logo.png",
+      "size": [
+        44,
+        44
+      ],
+      "bytes": 2663,
+      "sha256": "a49dc2a4b17a59ea3d483cb0a82329956619afdba1db23665ae1d9c7a803fcfd"
+    },
+    {
+      "path": "packages/desktop/icons/dev/Square71x71Logo.png",
+      "size": [
+        71,
+        71
+      ],
+      "bytes": 5260,
+      "sha256": "8481dcbde179694a91d87d821dc3848ccd5ee3885fa60e5dad1d27454bffabbb"
+    },
+    {
+      "path": "packages/desktop/icons/dev/Square89x89Logo.png",
+      "size": [
+        89,
+        89
+      ],
+      "bytes": 7372,
+      "sha256": "276d7eec81193b92994dcc975abf5fd2e58c979473cc1d18bcfc7b79bc8a14c0"
+    },
+    {
+      "path": "packages/desktop/icons/dev/StoreLogo.png",
+      "size": [
+        50,
+        50
+      ],
+      "bytes": 3177,
+      "sha256": "02469825de7c19ca1bd803f43d070ee50331799769c9ba2889a7d677d37195bc"
+    },
+    {
+      "path": "packages/desktop/icons/dev/android/mipmap-hdpi/ic_launcher.png",
+      "size": [
+        49,
+        49
+      ],
+      "bytes": 2895,
+      "sha256": "93a105ef0ab2530c1c6c03aa646ae9c0e92f44613309c6a9dd236abf0eaa8c11"
+    },
+    {
+      "path": "packages/desktop/icons/dev/android/mipmap-hdpi/ic_launcher_foreground.png",
+      "size": [
+        162,
+        162
+      ],
+      "bytes": 24968,
+      "sha256": "6d24ccfb176d5bd466a10ba870c0057e4412528c011940b5d173f701abd1276d"
+    },
+    {
+      "path": "packages/desktop/icons/dev/android/mipmap-hdpi/ic_launcher_round.png",
+      "size": [
+        49,
+        49
+      ],
+      "bytes": 3992,
+      "sha256": "0a9782e3663a6789d99addc9fa49e5d593e86ebd7efdf362271253f196c37e3b"
+    },
+    {
+      "path": "packages/desktop/icons/dev/android/mipmap-mdpi/ic_launcher.png",
+      "size": [
+        48,
+        48
+      ],
+      "bytes": 2805,
+      "sha256": "ce08545b734d25d413026958cbb24fd189f3f402856a2f0618c9057cd7226fd0"
+    },
+    {
+      "path": "packages/desktop/icons/dev/android/mipmap-mdpi/ic_launcher_foreground.png",
+      "size": [
+        108,
+        108
+      ],
+      "bytes": 13379,
+      "sha256": "6d6c9017c97fbd34c6ec561eb9082947404cfd4c7a66787ea288eaa9107007bb"
+    },
+    {
+      "path": "packages/desktop/icons/dev/android/mipmap-mdpi/ic_launcher_round.png",
+      "size": [
+        48,
+        48
+      ],
+      "bytes": 3861,
+      "sha256": "9f8910c34694af009d0097a8555f7cad22c40c42435c7ada48534d782eb6ce97"
+    },
+    {
+      "path": "packages/desktop/icons/dev/android/mipmap-xhdpi/ic_launcher.png",
+      "size": [
+        96,
+        96
+      ],
+      "bytes": 8780,
+      "sha256": "8bb6d06ece421d24e7b33b148005b38aece37649cb2c148d374f5273b59ae146"
+    },
+    {
+      "path": "packages/desktop/icons/dev/android/mipmap-xhdpi/ic_launcher_foreground.png",
+      "size": [
+        216,
+        216
+      ],
+      "bytes": 38601,
+      "sha256": "89266bb729a90efd63578f5886ac3bfc9ffa6ae441dffdf487077f1a8faad114"
+    },
+    {
+      "path": "packages/desktop/icons/dev/android/mipmap-xhdpi/ic_launcher_round.png",
+      "size": [
+        96,
+        96
+      ],
+      "bytes": 11017,
+      "sha256": "bfb0aeed800cc4e9747519354bdf09349b1ae6a015922434e517fd551f746bfd"
+    },
+    {
+      "path": "packages/desktop/icons/dev/android/mipmap-xxhdpi/ic_launcher.png",
+      "size": [
+        144,
+        144
+      ],
+      "bytes": 17261,
+      "sha256": "7144a07bea06291e1b76d7cea6f24cf49d40fe95dc6c7d013a1cc423fcf5a5f5"
+    },
+    {
+      "path": "packages/desktop/icons/dev/android/mipmap-xxhdpi/ic_launcher_foreground.png",
+      "size": [
+        324,
+        324
+      ],
+      "bytes": 75903,
+      "sha256": "2f4aa0d472f2b771683d79225688b2fa395f984c7fb9ad4ed49e4706b0a73602"
+    },
+    {
+      "path": "packages/desktop/icons/dev/android/mipmap-xxhdpi/ic_launcher_round.png",
+      "size": [
+        144,
+        144
+      ],
+      "bytes": 20691,
+      "sha256": "76387d0ecc1019fed32f4163e32642f8e596d9662d7bf4dd59161e7aa59f95dd"
+    },
+    {
+      "path": "packages/desktop/icons/dev/android/mipmap-xxxhdpi/ic_launcher.png",
+      "size": [
+        192,
+        192
+      ],
+      "bytes": 27463,
+      "sha256": "492788401f6c6bc72fcd44f43d5681e752965d252c021da096cbad78cb18dddd"
+    },
+    {
+      "path": "packages/desktop/icons/dev/android/mipmap-xxxhdpi/ic_launcher_foreground.png",
+      "size": [
+        432,
+        432
+      ],
+      "bytes": 125626,
+      "sha256": "ee1f8ca3f69222699b687251330fe48e2bebd75aa2471cc94be4a242681a5a66"
+    },
+    {
+      "path": "packages/desktop/icons/dev/android/mipmap-xxxhdpi/ic_launcher_round.png",
+      "size": [
+        192,
+        192
+      ],
+      "bytes": 32410,
+      "sha256": "47648b27d749bd85891a258a62a6226915715c0107005727f3efebb77f880356"
+    },
+    {
+      "path": "packages/desktop/icons/dev/dock.png",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 40451,
+      "sha256": "ead0df62a8a806d5b031e90a7c06e8d6793d05ebca22565784b4dc7430633f83"
+    },
+    {
+      "path": "packages/desktop/icons/dev/icon.icns",
+      "size": [
+        1024,
+        1024
+      ],
+      "bytes": 1067030,
+      "sha256": "5da88f5d05a82186edb830b06b9c2e1a2522b6bbadf30365c07f859ad9d9d632"
+    },
+    {
+      "path": "packages/desktop/icons/dev/icon.ico",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 70431,
+      "sha256": "cb738e01a2206c939e3fc8f8a93e37c0bb50d247c373c59d9b80b00bec43e5a8"
+    },
+    {
+      "path": "packages/desktop/icons/dev/icon.png",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 144951,
+      "sha256": "0fb1487785922a87e8938b953f09b59d47c78be1e3fc46693a617674c32b09bd"
+    },
+    {
+      "path": "packages/desktop/icons/dev/ios/AppIcon-20x20@1x.png",
+      "size": [
+        20,
+        20
+      ],
+      "bytes": 759,
+      "sha256": "781411397381a8bd9957864da4880d32fba63319fa4348b82d7f7cacd444d942"
+    },
+    {
+      "path": "packages/desktop/icons/dev/ios/AppIcon-20x20@2x-1.png",
+      "size": [
+        40,
+        40
+      ],
+      "bytes": 2120,
+      "sha256": "2863297505be958a63c6c418a691880147afd27933742644fc5c8d3ce0c0c9f6"
+    },
+    {
+      "path": "packages/desktop/icons/dev/ios/AppIcon-20x20@2x.png",
+      "size": [
+        40,
+        40
+      ],
+      "bytes": 2120,
+      "sha256": "2863297505be958a63c6c418a691880147afd27933742644fc5c8d3ce0c0c9f6"
+    },
+    {
+      "path": "packages/desktop/icons/dev/ios/AppIcon-20x20@3x.png",
+      "size": [
+        60,
+        60
+      ],
+      "bytes": 3977,
+      "sha256": "b113fa576d52ac525bb237785ba3a08f07560b0441a361a95ed19c7d4021a833"
+    },
+    {
+      "path": "packages/desktop/icons/dev/ios/AppIcon-29x29@1x.png",
+      "size": [
+        29,
+        29
+      ],
+      "bytes": 1295,
+      "sha256": "a9d601c1f4e18b886ad3c6a4d66f0f0cc73ae936710b7d7dd5743510a4373a8c"
+    },
+    {
+      "path": "packages/desktop/icons/dev/ios/AppIcon-29x29@2x-1.png",
+      "size": [
+        58,
+        58
+      ],
+      "bytes": 3792,
+      "sha256": "a7d0c83611cc58046a425a742da183ba119b3d7bdcbf570372825cb512021232"
+    },
+    {
+      "path": "packages/desktop/icons/dev/ios/AppIcon-29x29@2x.png",
+      "size": [
+        58,
+        58
+      ],
+      "bytes": 3792,
+      "sha256": "a7d0c83611cc58046a425a742da183ba119b3d7bdcbf570372825cb512021232"
+    },
+    {
+      "path": "packages/desktop/icons/dev/ios/AppIcon-29x29@3x.png",
+      "size": [
+        87,
+        87
+      ],
+      "bytes": 7429,
+      "sha256": "7b99d6b2429a34aa33671a67532461a727eab1a317d70a021cfa8832eedda731"
+    },
+    {
+      "path": "packages/desktop/icons/dev/ios/AppIcon-40x40@1x.png",
+      "size": [
+        40,
+        40
+      ],
+      "bytes": 2120,
+      "sha256": "2863297505be958a63c6c418a691880147afd27933742644fc5c8d3ce0c0c9f6"
+    },
+    {
+      "path": "packages/desktop/icons/dev/ios/AppIcon-40x40@2x-1.png",
+      "size": [
+        80,
+        80
+      ],
+      "bytes": 6414,
+      "sha256": "a49761befbc5e91cb8b0d17a6b061d5d8acba26ef17da9ff21748e639816086c"
+    },
+    {
+      "path": "packages/desktop/icons/dev/ios/AppIcon-40x40@2x.png",
+      "size": [
+        80,
+        80
+      ],
+      "bytes": 6414,
+      "sha256": "a49761befbc5e91cb8b0d17a6b061d5d8acba26ef17da9ff21748e639816086c"
+    },
+    {
+      "path": "packages/desktop/icons/dev/ios/AppIcon-40x40@3x.png",
+      "size": [
+        120,
+        120
+      ],
+      "bytes": 12810,
+      "sha256": "c85cd3ff890528d15688a0ec796f2ed8cc1b9d62c677d959e57a8e902e488d38"
+    },
+    {
+      "path": "packages/desktop/icons/dev/ios/AppIcon-512@2x.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "bytes": 694251,
+      "sha256": "86f7f3af78783f89c68f811403d7be9c4ba3ed34b87d22f3c40bc9de9a2f2bee"
+    },
+    {
+      "path": "packages/desktop/icons/dev/ios/AppIcon-60x60@2x.png",
+      "size": [
+        120,
+        120
+      ],
+      "bytes": 12810,
+      "sha256": "c85cd3ff890528d15688a0ec796f2ed8cc1b9d62c677d959e57a8e902e488d38"
+    },
+    {
+      "path": "packages/desktop/icons/dev/ios/AppIcon-60x60@3x.png",
+      "size": [
+        180,
+        180
+      ],
+      "bytes": 24659,
+      "sha256": "1d6f2c50951d80853abcdf23d4e22e8c440642c0639384e371d99f00c0c0d00e"
+    },
+    {
+      "path": "packages/desktop/icons/dev/ios/AppIcon-76x76@1x.png",
+      "size": [
+        76,
+        76
+      ],
+      "bytes": 5878,
+      "sha256": "56cc165b5d5d4e1a67cc92a89d0884f3c8bf4addc4238a80e81848ca75adcb99"
+    },
+    {
+      "path": "packages/desktop/icons/dev/ios/AppIcon-76x76@2x.png",
+      "size": [
+        152,
+        152
+      ],
+      "bytes": 18940,
+      "sha256": "b7422e13c0bd7b44190fbc438ef4ecd45ec684dd4654387c3380e2964d3a795e"
+    },
+    {
+      "path": "packages/desktop/icons/dev/ios/AppIcon-83.5x83.5@2x.png",
+      "size": [
+        167,
+        167
+      ],
+      "bytes": 21940,
+      "sha256": "45604aca46a7b68caadc26468cf2ae0a658c88bf059c6877c88361ee204e1a79"
+    },
+    {
+      "path": "packages/desktop/icons/prod/128x128.png",
+      "size": [
+        128,
+        128
+      ],
+      "bytes": 13368,
+      "sha256": "6832de02dcaa617b120c4b9cc0911236689362fd1616bfe54bb8bd0a664b55b8"
+    },
+    {
+      "path": "packages/desktop/icons/prod/128x128@2x.png",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 40451,
+      "sha256": "ead0df62a8a806d5b031e90a7c06e8d6793d05ebca22565784b4dc7430633f83"
+    },
+    {
+      "path": "packages/desktop/icons/prod/32x32.png",
+      "size": [
+        32,
+        32
+      ],
+      "bytes": 1744,
+      "sha256": "b959a19254e3e6f90ab682da423a2c764af3dec16e0a46663603037a77c34962"
+    },
+    {
+      "path": "packages/desktop/icons/prod/64x64.png",
+      "size": [
+        64,
+        64
+      ],
+      "bytes": 4494,
+      "sha256": "d6c616b52d9aad3c491fe129747c47de3d38d2b98e843bae30367076340e95a6"
+    },
+    {
+      "path": "packages/desktop/icons/prod/Square107x107Logo.png",
+      "size": [
+        107,
+        107
+      ],
+      "bytes": 10159,
+      "sha256": "4168b23132834cca43549a7ec1b66707458acc801dda0fbc984b00d54ea68760"
+    },
+    {
+      "path": "packages/desktop/icons/prod/Square142x142Logo.png",
+      "size": [
+        142,
+        142
+      ],
+      "bytes": 15875,
+      "sha256": "913c9db1dc90fb452a276efaf21135768208fcee1549480a8afff7553468045d"
+    },
+    {
+      "path": "packages/desktop/icons/prod/Square150x150Logo.png",
+      "size": [
+        150,
+        150
+      ],
+      "bytes": 17498,
+      "sha256": "d7cf77cef3224a305fda63e18468c00f53ba3212c0fc9e5a5a855cc5877f80bc"
+    },
+    {
+      "path": "packages/desktop/icons/prod/Square284x284Logo.png",
+      "size": [
+        284,
+        284
+      ],
+      "bytes": 48449,
+      "sha256": "96c09467bbd3041824d8672d3c350a17e9bda449655abb8fd4b5340513e59a6d"
+    },
+    {
+      "path": "packages/desktop/icons/prod/Square30x30Logo.png",
+      "size": [
+        30,
+        30
+      ],
+      "bytes": 1565,
+      "sha256": "cf1a13c299a6d2ae4a2048f5c1d62d804fca1828eb06ef8ebab7b557ea20b977"
+    },
+    {
+      "path": "packages/desktop/icons/prod/Square310x310Logo.png",
+      "size": [
+        310,
+        310
+      ],
+      "bytes": 56611,
+      "sha256": "7a6941a336ec562e434719aa17e7f3a72f7be16c2312569431a3e45d6091edf7"
+    },
+    {
+      "path": "packages/desktop/icons/prod/Square44x44Logo.png",
+      "size": [
+        44,
+        44
+      ],
+      "bytes": 2663,
+      "sha256": "a49dc2a4b17a59ea3d483cb0a82329956619afdba1db23665ae1d9c7a803fcfd"
+    },
+    {
+      "path": "packages/desktop/icons/prod/Square71x71Logo.png",
+      "size": [
+        71,
+        71
+      ],
+      "bytes": 5260,
+      "sha256": "8481dcbde179694a91d87d821dc3848ccd5ee3885fa60e5dad1d27454bffabbb"
+    },
+    {
+      "path": "packages/desktop/icons/prod/Square89x89Logo.png",
+      "size": [
+        89,
+        89
+      ],
+      "bytes": 7372,
+      "sha256": "276d7eec81193b92994dcc975abf5fd2e58c979473cc1d18bcfc7b79bc8a14c0"
+    },
+    {
+      "path": "packages/desktop/icons/prod/StoreLogo.png",
+      "size": [
+        50,
+        50
+      ],
+      "bytes": 3177,
+      "sha256": "02469825de7c19ca1bd803f43d070ee50331799769c9ba2889a7d677d37195bc"
+    },
+    {
+      "path": "packages/desktop/icons/prod/android/mipmap-hdpi/ic_launcher.png",
+      "size": [
+        49,
+        49
+      ],
+      "bytes": 2895,
+      "sha256": "93a105ef0ab2530c1c6c03aa646ae9c0e92f44613309c6a9dd236abf0eaa8c11"
+    },
+    {
+      "path": "packages/desktop/icons/prod/android/mipmap-hdpi/ic_launcher_foreground.png",
+      "size": [
+        162,
+        162
+      ],
+      "bytes": 24968,
+      "sha256": "6d24ccfb176d5bd466a10ba870c0057e4412528c011940b5d173f701abd1276d"
+    },
+    {
+      "path": "packages/desktop/icons/prod/android/mipmap-hdpi/ic_launcher_round.png",
+      "size": [
+        49,
+        49
+      ],
+      "bytes": 3992,
+      "sha256": "0a9782e3663a6789d99addc9fa49e5d593e86ebd7efdf362271253f196c37e3b"
+    },
+    {
+      "path": "packages/desktop/icons/prod/android/mipmap-mdpi/ic_launcher.png",
+      "size": [
+        48,
+        48
+      ],
+      "bytes": 2805,
+      "sha256": "ce08545b734d25d413026958cbb24fd189f3f402856a2f0618c9057cd7226fd0"
+    },
+    {
+      "path": "packages/desktop/icons/prod/android/mipmap-mdpi/ic_launcher_foreground.png",
+      "size": [
+        108,
+        108
+      ],
+      "bytes": 13379,
+      "sha256": "6d6c9017c97fbd34c6ec561eb9082947404cfd4c7a66787ea288eaa9107007bb"
+    },
+    {
+      "path": "packages/desktop/icons/prod/android/mipmap-mdpi/ic_launcher_round.png",
+      "size": [
+        48,
+        48
+      ],
+      "bytes": 3861,
+      "sha256": "9f8910c34694af009d0097a8555f7cad22c40c42435c7ada48534d782eb6ce97"
+    },
+    {
+      "path": "packages/desktop/icons/prod/android/mipmap-xhdpi/ic_launcher.png",
+      "size": [
+        96,
+        96
+      ],
+      "bytes": 8780,
+      "sha256": "8bb6d06ece421d24e7b33b148005b38aece37649cb2c148d374f5273b59ae146"
+    },
+    {
+      "path": "packages/desktop/icons/prod/android/mipmap-xhdpi/ic_launcher_foreground.png",
+      "size": [
+        216,
+        216
+      ],
+      "bytes": 38601,
+      "sha256": "89266bb729a90efd63578f5886ac3bfc9ffa6ae441dffdf487077f1a8faad114"
+    },
+    {
+      "path": "packages/desktop/icons/prod/android/mipmap-xhdpi/ic_launcher_round.png",
+      "size": [
+        96,
+        96
+      ],
+      "bytes": 11017,
+      "sha256": "bfb0aeed800cc4e9747519354bdf09349b1ae6a015922434e517fd551f746bfd"
+    },
+    {
+      "path": "packages/desktop/icons/prod/android/mipmap-xxhdpi/ic_launcher.png",
+      "size": [
+        144,
+        144
+      ],
+      "bytes": 17261,
+      "sha256": "7144a07bea06291e1b76d7cea6f24cf49d40fe95dc6c7d013a1cc423fcf5a5f5"
+    },
+    {
+      "path": "packages/desktop/icons/prod/android/mipmap-xxhdpi/ic_launcher_foreground.png",
+      "size": [
+        324,
+        324
+      ],
+      "bytes": 75903,
+      "sha256": "2f4aa0d472f2b771683d79225688b2fa395f984c7fb9ad4ed49e4706b0a73602"
+    },
+    {
+      "path": "packages/desktop/icons/prod/android/mipmap-xxhdpi/ic_launcher_round.png",
+      "size": [
+        144,
+        144
+      ],
+      "bytes": 20691,
+      "sha256": "76387d0ecc1019fed32f4163e32642f8e596d9662d7bf4dd59161e7aa59f95dd"
+    },
+    {
+      "path": "packages/desktop/icons/prod/android/mipmap-xxxhdpi/ic_launcher.png",
+      "size": [
+        192,
+        192
+      ],
+      "bytes": 27463,
+      "sha256": "492788401f6c6bc72fcd44f43d5681e752965d252c021da096cbad78cb18dddd"
+    },
+    {
+      "path": "packages/desktop/icons/prod/android/mipmap-xxxhdpi/ic_launcher_foreground.png",
+      "size": [
+        432,
+        432
+      ],
+      "bytes": 125626,
+      "sha256": "ee1f8ca3f69222699b687251330fe48e2bebd75aa2471cc94be4a242681a5a66"
+    },
+    {
+      "path": "packages/desktop/icons/prod/android/mipmap-xxxhdpi/ic_launcher_round.png",
+      "size": [
+        192,
+        192
+      ],
+      "bytes": 32410,
+      "sha256": "47648b27d749bd85891a258a62a6226915715c0107005727f3efebb77f880356"
+    },
+    {
+      "path": "packages/desktop/icons/prod/dock.png",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 40451,
+      "sha256": "ead0df62a8a806d5b031e90a7c06e8d6793d05ebca22565784b4dc7430633f83"
+    },
+    {
+      "path": "packages/desktop/icons/prod/icon.icns",
+      "size": [
+        1024,
+        1024
+      ],
+      "bytes": 1067030,
+      "sha256": "5da88f5d05a82186edb830b06b9c2e1a2522b6bbadf30365c07f859ad9d9d632"
+    },
+    {
+      "path": "packages/desktop/icons/prod/icon.ico",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 70431,
+      "sha256": "cb738e01a2206c939e3fc8f8a93e37c0bb50d247c373c59d9b80b00bec43e5a8"
+    },
+    {
+      "path": "packages/desktop/icons/prod/icon.png",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 144951,
+      "sha256": "0fb1487785922a87e8938b953f09b59d47c78be1e3fc46693a617674c32b09bd"
+    },
+    {
+      "path": "packages/desktop/icons/prod/ios/AppIcon-20x20@1x.png",
+      "size": [
+        20,
+        20
+      ],
+      "bytes": 759,
+      "sha256": "781411397381a8bd9957864da4880d32fba63319fa4348b82d7f7cacd444d942"
+    },
+    {
+      "path": "packages/desktop/icons/prod/ios/AppIcon-20x20@2x-1.png",
+      "size": [
+        40,
+        40
+      ],
+      "bytes": 2120,
+      "sha256": "2863297505be958a63c6c418a691880147afd27933742644fc5c8d3ce0c0c9f6"
+    },
+    {
+      "path": "packages/desktop/icons/prod/ios/AppIcon-20x20@2x.png",
+      "size": [
+        40,
+        40
+      ],
+      "bytes": 2120,
+      "sha256": "2863297505be958a63c6c418a691880147afd27933742644fc5c8d3ce0c0c9f6"
+    },
+    {
+      "path": "packages/desktop/icons/prod/ios/AppIcon-20x20@3x.png",
+      "size": [
+        60,
+        60
+      ],
+      "bytes": 3977,
+      "sha256": "b113fa576d52ac525bb237785ba3a08f07560b0441a361a95ed19c7d4021a833"
+    },
+    {
+      "path": "packages/desktop/icons/prod/ios/AppIcon-29x29@1x.png",
+      "size": [
+        29,
+        29
+      ],
+      "bytes": 1295,
+      "sha256": "a9d601c1f4e18b886ad3c6a4d66f0f0cc73ae936710b7d7dd5743510a4373a8c"
+    },
+    {
+      "path": "packages/desktop/icons/prod/ios/AppIcon-29x29@2x-1.png",
+      "size": [
+        58,
+        58
+      ],
+      "bytes": 3792,
+      "sha256": "a7d0c83611cc58046a425a742da183ba119b3d7bdcbf570372825cb512021232"
+    },
+    {
+      "path": "packages/desktop/icons/prod/ios/AppIcon-29x29@2x.png",
+      "size": [
+        58,
+        58
+      ],
+      "bytes": 3792,
+      "sha256": "a7d0c83611cc58046a425a742da183ba119b3d7bdcbf570372825cb512021232"
+    },
+    {
+      "path": "packages/desktop/icons/prod/ios/AppIcon-29x29@3x.png",
+      "size": [
+        87,
+        87
+      ],
+      "bytes": 7429,
+      "sha256": "7b99d6b2429a34aa33671a67532461a727eab1a317d70a021cfa8832eedda731"
+    },
+    {
+      "path": "packages/desktop/icons/prod/ios/AppIcon-40x40@1x.png",
+      "size": [
+        40,
+        40
+      ],
+      "bytes": 2120,
+      "sha256": "2863297505be958a63c6c418a691880147afd27933742644fc5c8d3ce0c0c9f6"
+    },
+    {
+      "path": "packages/desktop/icons/prod/ios/AppIcon-40x40@2x-1.png",
+      "size": [
+        80,
+        80
+      ],
+      "bytes": 6414,
+      "sha256": "a49761befbc5e91cb8b0d17a6b061d5d8acba26ef17da9ff21748e639816086c"
+    },
+    {
+      "path": "packages/desktop/icons/prod/ios/AppIcon-40x40@2x.png",
+      "size": [
+        80,
+        80
+      ],
+      "bytes": 6414,
+      "sha256": "a49761befbc5e91cb8b0d17a6b061d5d8acba26ef17da9ff21748e639816086c"
+    },
+    {
+      "path": "packages/desktop/icons/prod/ios/AppIcon-40x40@3x.png",
+      "size": [
+        120,
+        120
+      ],
+      "bytes": 12810,
+      "sha256": "c85cd3ff890528d15688a0ec796f2ed8cc1b9d62c677d959e57a8e902e488d38"
+    },
+    {
+      "path": "packages/desktop/icons/prod/ios/AppIcon-512@2x.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "bytes": 694251,
+      "sha256": "86f7f3af78783f89c68f811403d7be9c4ba3ed34b87d22f3c40bc9de9a2f2bee"
+    },
+    {
+      "path": "packages/desktop/icons/prod/ios/AppIcon-60x60@2x.png",
+      "size": [
+        120,
+        120
+      ],
+      "bytes": 12810,
+      "sha256": "c85cd3ff890528d15688a0ec796f2ed8cc1b9d62c677d959e57a8e902e488d38"
+    },
+    {
+      "path": "packages/desktop/icons/prod/ios/AppIcon-60x60@3x.png",
+      "size": [
+        180,
+        180
+      ],
+      "bytes": 24659,
+      "sha256": "1d6f2c50951d80853abcdf23d4e22e8c440642c0639384e371d99f00c0c0d00e"
+    },
+    {
+      "path": "packages/desktop/icons/prod/ios/AppIcon-76x76@1x.png",
+      "size": [
+        76,
+        76
+      ],
+      "bytes": 5878,
+      "sha256": "56cc165b5d5d4e1a67cc92a89d0884f3c8bf4addc4238a80e81848ca75adcb99"
+    },
+    {
+      "path": "packages/desktop/icons/prod/ios/AppIcon-76x76@2x.png",
+      "size": [
+        152,
+        152
+      ],
+      "bytes": 18940,
+      "sha256": "b7422e13c0bd7b44190fbc438ef4ecd45ec684dd4654387c3380e2964d3a795e"
+    },
+    {
+      "path": "packages/desktop/icons/prod/ios/AppIcon-83.5x83.5@2x.png",
+      "size": [
+        167,
+        167
+      ],
+      "bytes": 21940,
+      "sha256": "45604aca46a7b68caadc26468cf2ae0a658c88bf059c6877c88361ee204e1a79"
+    },
+    {
+      "path": "packages/desktop/resources/icons/128x128.png",
+      "size": [
+        128,
+        128
+      ],
+      "bytes": 13368,
+      "sha256": "6832de02dcaa617b120c4b9cc0911236689362fd1616bfe54bb8bd0a664b55b8"
+    },
+    {
+      "path": "packages/desktop/resources/icons/128x128@2x.png",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 40451,
+      "sha256": "ead0df62a8a806d5b031e90a7c06e8d6793d05ebca22565784b4dc7430633f83"
+    },
+    {
+      "path": "packages/desktop/resources/icons/32x32.png",
+      "size": [
+        32,
+        32
+      ],
+      "bytes": 1744,
+      "sha256": "b959a19254e3e6f90ab682da423a2c764af3dec16e0a46663603037a77c34962"
+    },
+    {
+      "path": "packages/desktop/resources/icons/64x64.png",
+      "size": [
+        64,
+        64
+      ],
+      "bytes": 4494,
+      "sha256": "d6c616b52d9aad3c491fe129747c47de3d38d2b98e843bae30367076340e95a6"
+    },
+    {
+      "path": "packages/desktop/resources/icons/Square107x107Logo.png",
+      "size": [
+        107,
+        107
+      ],
+      "bytes": 10159,
+      "sha256": "4168b23132834cca43549a7ec1b66707458acc801dda0fbc984b00d54ea68760"
+    },
+    {
+      "path": "packages/desktop/resources/icons/Square142x142Logo.png",
+      "size": [
+        142,
+        142
+      ],
+      "bytes": 15875,
+      "sha256": "913c9db1dc90fb452a276efaf21135768208fcee1549480a8afff7553468045d"
+    },
+    {
+      "path": "packages/desktop/resources/icons/Square150x150Logo.png",
+      "size": [
+        150,
+        150
+      ],
+      "bytes": 17498,
+      "sha256": "d7cf77cef3224a305fda63e18468c00f53ba3212c0fc9e5a5a855cc5877f80bc"
+    },
+    {
+      "path": "packages/desktop/resources/icons/Square284x284Logo.png",
+      "size": [
+        284,
+        284
+      ],
+      "bytes": 48449,
+      "sha256": "96c09467bbd3041824d8672d3c350a17e9bda449655abb8fd4b5340513e59a6d"
+    },
+    {
+      "path": "packages/desktop/resources/icons/Square30x30Logo.png",
+      "size": [
+        30,
+        30
+      ],
+      "bytes": 1565,
+      "sha256": "cf1a13c299a6d2ae4a2048f5c1d62d804fca1828eb06ef8ebab7b557ea20b977"
+    },
+    {
+      "path": "packages/desktop/resources/icons/Square310x310Logo.png",
+      "size": [
+        310,
+        310
+      ],
+      "bytes": 56611,
+      "sha256": "7a6941a336ec562e434719aa17e7f3a72f7be16c2312569431a3e45d6091edf7"
+    },
+    {
+      "path": "packages/desktop/resources/icons/Square44x44Logo.png",
+      "size": [
+        44,
+        44
+      ],
+      "bytes": 2663,
+      "sha256": "a49dc2a4b17a59ea3d483cb0a82329956619afdba1db23665ae1d9c7a803fcfd"
+    },
+    {
+      "path": "packages/desktop/resources/icons/Square71x71Logo.png",
+      "size": [
+        71,
+        71
+      ],
+      "bytes": 5260,
+      "sha256": "8481dcbde179694a91d87d821dc3848ccd5ee3885fa60e5dad1d27454bffabbb"
+    },
+    {
+      "path": "packages/desktop/resources/icons/Square89x89Logo.png",
+      "size": [
+        89,
+        89
+      ],
+      "bytes": 7372,
+      "sha256": "276d7eec81193b92994dcc975abf5fd2e58c979473cc1d18bcfc7b79bc8a14c0"
+    },
+    {
+      "path": "packages/desktop/resources/icons/StoreLogo.png",
+      "size": [
+        50,
+        50
+      ],
+      "bytes": 3177,
+      "sha256": "02469825de7c19ca1bd803f43d070ee50331799769c9ba2889a7d677d37195bc"
+    },
+    {
+      "path": "packages/desktop/resources/icons/android/mipmap-hdpi/ic_launcher.png",
+      "size": [
+        49,
+        49
+      ],
+      "bytes": 2895,
+      "sha256": "93a105ef0ab2530c1c6c03aa646ae9c0e92f44613309c6a9dd236abf0eaa8c11"
+    },
+    {
+      "path": "packages/desktop/resources/icons/android/mipmap-hdpi/ic_launcher_foreground.png",
+      "size": [
+        162,
+        162
+      ],
+      "bytes": 24968,
+      "sha256": "6d24ccfb176d5bd466a10ba870c0057e4412528c011940b5d173f701abd1276d"
+    },
+    {
+      "path": "packages/desktop/resources/icons/android/mipmap-hdpi/ic_launcher_round.png",
+      "size": [
+        49,
+        49
+      ],
+      "bytes": 3992,
+      "sha256": "0a9782e3663a6789d99addc9fa49e5d593e86ebd7efdf362271253f196c37e3b"
+    },
+    {
+      "path": "packages/desktop/resources/icons/android/mipmap-mdpi/ic_launcher.png",
+      "size": [
+        48,
+        48
+      ],
+      "bytes": 2805,
+      "sha256": "ce08545b734d25d413026958cbb24fd189f3f402856a2f0618c9057cd7226fd0"
+    },
+    {
+      "path": "packages/desktop/resources/icons/android/mipmap-mdpi/ic_launcher_foreground.png",
+      "size": [
+        108,
+        108
+      ],
+      "bytes": 13379,
+      "sha256": "6d6c9017c97fbd34c6ec561eb9082947404cfd4c7a66787ea288eaa9107007bb"
+    },
+    {
+      "path": "packages/desktop/resources/icons/android/mipmap-mdpi/ic_launcher_round.png",
+      "size": [
+        48,
+        48
+      ],
+      "bytes": 3861,
+      "sha256": "9f8910c34694af009d0097a8555f7cad22c40c42435c7ada48534d782eb6ce97"
+    },
+    {
+      "path": "packages/desktop/resources/icons/android/mipmap-xhdpi/ic_launcher.png",
+      "size": [
+        96,
+        96
+      ],
+      "bytes": 8780,
+      "sha256": "8bb6d06ece421d24e7b33b148005b38aece37649cb2c148d374f5273b59ae146"
+    },
+    {
+      "path": "packages/desktop/resources/icons/android/mipmap-xhdpi/ic_launcher_foreground.png",
+      "size": [
+        216,
+        216
+      ],
+      "bytes": 38601,
+      "sha256": "89266bb729a90efd63578f5886ac3bfc9ffa6ae441dffdf487077f1a8faad114"
+    },
+    {
+      "path": "packages/desktop/resources/icons/android/mipmap-xhdpi/ic_launcher_round.png",
+      "size": [
+        96,
+        96
+      ],
+      "bytes": 11017,
+      "sha256": "bfb0aeed800cc4e9747519354bdf09349b1ae6a015922434e517fd551f746bfd"
+    },
+    {
+      "path": "packages/desktop/resources/icons/android/mipmap-xxhdpi/ic_launcher.png",
+      "size": [
+        144,
+        144
+      ],
+      "bytes": 17261,
+      "sha256": "7144a07bea06291e1b76d7cea6f24cf49d40fe95dc6c7d013a1cc423fcf5a5f5"
+    },
+    {
+      "path": "packages/desktop/resources/icons/android/mipmap-xxhdpi/ic_launcher_foreground.png",
+      "size": [
+        324,
+        324
+      ],
+      "bytes": 75903,
+      "sha256": "2f4aa0d472f2b771683d79225688b2fa395f984c7fb9ad4ed49e4706b0a73602"
+    },
+    {
+      "path": "packages/desktop/resources/icons/android/mipmap-xxhdpi/ic_launcher_round.png",
+      "size": [
+        144,
+        144
+      ],
+      "bytes": 20691,
+      "sha256": "76387d0ecc1019fed32f4163e32642f8e596d9662d7bf4dd59161e7aa59f95dd"
+    },
+    {
+      "path": "packages/desktop/resources/icons/android/mipmap-xxxhdpi/ic_launcher.png",
+      "size": [
+        192,
+        192
+      ],
+      "bytes": 27463,
+      "sha256": "492788401f6c6bc72fcd44f43d5681e752965d252c021da096cbad78cb18dddd"
+    },
+    {
+      "path": "packages/desktop/resources/icons/android/mipmap-xxxhdpi/ic_launcher_foreground.png",
+      "size": [
+        432,
+        432
+      ],
+      "bytes": 125626,
+      "sha256": "ee1f8ca3f69222699b687251330fe48e2bebd75aa2471cc94be4a242681a5a66"
+    },
+    {
+      "path": "packages/desktop/resources/icons/android/mipmap-xxxhdpi/ic_launcher_round.png",
+      "size": [
+        192,
+        192
+      ],
+      "bytes": 32410,
+      "sha256": "47648b27d749bd85891a258a62a6226915715c0107005727f3efebb77f880356"
+    },
+    {
+      "path": "packages/desktop/resources/icons/dock.png",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 40451,
+      "sha256": "ead0df62a8a806d5b031e90a7c06e8d6793d05ebca22565784b4dc7430633f83"
+    },
+    {
+      "path": "packages/desktop/resources/icons/icon.icns",
+      "size": [
+        1024,
+        1024
+      ],
+      "bytes": 1067030,
+      "sha256": "5da88f5d05a82186edb830b06b9c2e1a2522b6bbadf30365c07f859ad9d9d632"
+    },
+    {
+      "path": "packages/desktop/resources/icons/icon.ico",
+      "size": [
+        256,
+        256
+      ],
+      "bytes": 70431,
+      "sha256": "cb738e01a2206c939e3fc8f8a93e37c0bb50d247c373c59d9b80b00bec43e5a8"
+    },
+    {
+      "path": "packages/desktop/resources/icons/icon.png",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 144951,
+      "sha256": "0fb1487785922a87e8938b953f09b59d47c78be1e3fc46693a617674c32b09bd"
+    },
+    {
+      "path": "packages/desktop/resources/icons/ios/AppIcon-20x20@1x.png",
+      "size": [
+        20,
+        20
+      ],
+      "bytes": 759,
+      "sha256": "781411397381a8bd9957864da4880d32fba63319fa4348b82d7f7cacd444d942"
+    },
+    {
+      "path": "packages/desktop/resources/icons/ios/AppIcon-20x20@2x-1.png",
+      "size": [
+        40,
+        40
+      ],
+      "bytes": 2120,
+      "sha256": "2863297505be958a63c6c418a691880147afd27933742644fc5c8d3ce0c0c9f6"
+    },
+    {
+      "path": "packages/desktop/resources/icons/ios/AppIcon-20x20@2x.png",
+      "size": [
+        40,
+        40
+      ],
+      "bytes": 2120,
+      "sha256": "2863297505be958a63c6c418a691880147afd27933742644fc5c8d3ce0c0c9f6"
+    },
+    {
+      "path": "packages/desktop/resources/icons/ios/AppIcon-20x20@3x.png",
+      "size": [
+        60,
+        60
+      ],
+      "bytes": 3977,
+      "sha256": "b113fa576d52ac525bb237785ba3a08f07560b0441a361a95ed19c7d4021a833"
+    },
+    {
+      "path": "packages/desktop/resources/icons/ios/AppIcon-29x29@1x.png",
+      "size": [
+        29,
+        29
+      ],
+      "bytes": 1295,
+      "sha256": "a9d601c1f4e18b886ad3c6a4d66f0f0cc73ae936710b7d7dd5743510a4373a8c"
+    },
+    {
+      "path": "packages/desktop/resources/icons/ios/AppIcon-29x29@2x-1.png",
+      "size": [
+        58,
+        58
+      ],
+      "bytes": 3792,
+      "sha256": "a7d0c83611cc58046a425a742da183ba119b3d7bdcbf570372825cb512021232"
+    },
+    {
+      "path": "packages/desktop/resources/icons/ios/AppIcon-29x29@2x.png",
+      "size": [
+        58,
+        58
+      ],
+      "bytes": 3792,
+      "sha256": "a7d0c83611cc58046a425a742da183ba119b3d7bdcbf570372825cb512021232"
+    },
+    {
+      "path": "packages/desktop/resources/icons/ios/AppIcon-29x29@3x.png",
+      "size": [
+        87,
+        87
+      ],
+      "bytes": 7429,
+      "sha256": "7b99d6b2429a34aa33671a67532461a727eab1a317d70a021cfa8832eedda731"
+    },
+    {
+      "path": "packages/desktop/resources/icons/ios/AppIcon-40x40@1x.png",
+      "size": [
+        40,
+        40
+      ],
+      "bytes": 2120,
+      "sha256": "2863297505be958a63c6c418a691880147afd27933742644fc5c8d3ce0c0c9f6"
+    },
+    {
+      "path": "packages/desktop/resources/icons/ios/AppIcon-40x40@2x-1.png",
+      "size": [
+        80,
+        80
+      ],
+      "bytes": 6414,
+      "sha256": "a49761befbc5e91cb8b0d17a6b061d5d8acba26ef17da9ff21748e639816086c"
+    },
+    {
+      "path": "packages/desktop/resources/icons/ios/AppIcon-40x40@2x.png",
+      "size": [
+        80,
+        80
+      ],
+      "bytes": 6414,
+      "sha256": "a49761befbc5e91cb8b0d17a6b061d5d8acba26ef17da9ff21748e639816086c"
+    },
+    {
+      "path": "packages/desktop/resources/icons/ios/AppIcon-40x40@3x.png",
+      "size": [
+        120,
+        120
+      ],
+      "bytes": 12810,
+      "sha256": "c85cd3ff890528d15688a0ec796f2ed8cc1b9d62c677d959e57a8e902e488d38"
+    },
+    {
+      "path": "packages/desktop/resources/icons/ios/AppIcon-512@2x.png",
+      "size": [
+        1024,
+        1024
+      ],
+      "bytes": 694251,
+      "sha256": "86f7f3af78783f89c68f811403d7be9c4ba3ed34b87d22f3c40bc9de9a2f2bee"
+    },
+    {
+      "path": "packages/desktop/resources/icons/ios/AppIcon-60x60@2x.png",
+      "size": [
+        120,
+        120
+      ],
+      "bytes": 12810,
+      "sha256": "c85cd3ff890528d15688a0ec796f2ed8cc1b9d62c677d959e57a8e902e488d38"
+    },
+    {
+      "path": "packages/desktop/resources/icons/ios/AppIcon-60x60@3x.png",
+      "size": [
+        180,
+        180
+      ],
+      "bytes": 24659,
+      "sha256": "1d6f2c50951d80853abcdf23d4e22e8c440642c0639384e371d99f00c0c0d00e"
+    },
+    {
+      "path": "packages/desktop/resources/icons/ios/AppIcon-76x76@1x.png",
+      "size": [
+        76,
+        76
+      ],
+      "bytes": 5878,
+      "sha256": "56cc165b5d5d4e1a67cc92a89d0884f3c8bf4addc4238a80e81848ca75adcb99"
+    },
+    {
+      "path": "packages/desktop/resources/icons/ios/AppIcon-76x76@2x.png",
+      "size": [
+        152,
+        152
+      ],
+      "bytes": 18940,
+      "sha256": "b7422e13c0bd7b44190fbc438ef4ecd45ec684dd4654387c3380e2964d3a795e"
+    },
+    {
+      "path": "packages/desktop/resources/icons/ios/AppIcon-83.5x83.5@2x.png",
+      "size": [
+        167,
+        167
+      ],
+      "bytes": 21940,
+      "sha256": "45604aca46a7b68caadc26468cf2ae0a658c88bf059c6877c88361ee204e1a79"
+    },
+    {
+      "path": "packages/ui/src/assets/identity/apple-touch-icon.png",
+      "size": [
+        180,
+        180
+      ],
+      "bytes": 24659,
+      "sha256": "1d6f2c50951d80853abcdf23d4e22e8c440642c0639384e371d99f00c0c0d00e"
+    },
+    {
+      "path": "packages/ui/src/assets/identity/emblem.png",
+      "size": [
+        128,
+        128
+      ],
+      "bytes": 16961,
+      "sha256": "7919175925d382f5c6675ce4fcbe16c3c5acb36e6610c9a7a143f45f2623ebe9"
+    },
+    {
+      "path": "packages/ui/src/assets/identity/favicon-96.png",
+      "size": [
+        96,
+        96
+      ],
+      "bytes": 10449,
+      "sha256": "676869828315e6a3b2dd57c44c1f9edead629926c2ab12ece823d6230b25eee8"
+    },
+    {
+      "path": "packages/ui/src/assets/identity/favicon.ico",
+      "size": [
+        64,
+        64
+      ],
+      "bytes": 13188,
+      "sha256": "93e4b504806d4396819b8ba4254a9df913c5acd2978600bcbecf1a1449e65ba5"
+    },
+    {
+      "path": "packages/ui/src/assets/identity/welcome-dark.webp",
+      "size": [
+        768,
+        512
+      ],
+      "bytes": 100676,
+      "sha256": "abac42fe16800be9cffc2c945a367df4a90e1f4044cf1a554d3d112f2a68b24d"
+    },
+    {
+      "path": "packages/ui/src/assets/identity/welcome-light.webp",
+      "size": [
+        768,
+        512
+      ],
+      "bytes": 100676,
+      "sha256": "abac42fe16800be9cffc2c945a367df4a90e1f4044cf1a554d3d112f2a68b24d"
+    },
+    {
+      "path": "packages/ui/src/assets/favicon/web-app-manifest-192x192.png",
+      "size": [
+        192,
+        192
+      ],
+      "bytes": 27463,
+      "sha256": "492788401f6c6bc72fcd44f43d5681e752965d252c021da096cbad78cb18dddd"
+    },
+    {
+      "path": "packages/ui/src/assets/favicon/web-app-manifest-512x512.png",
+      "size": [
+        512,
+        512
+      ],
+      "bytes": 166370,
+      "sha256": "dc1f7bd90d659b50fd39a2140c02532867a6ee511c2e594f6855cf610ccf7057"
+    }
+  ],
+  "settings": {
+    "rounding_radius": 220,
+    "desktop_inset": 82,
+    "resampling": "LANCZOS",
+    "welcome_size": [
+      768,
+      512
+    ],
+    "welcome_tile_size": [
+      448,
+      448
+    ],
+    "webp": "lossless, method=6"
+  }
+}

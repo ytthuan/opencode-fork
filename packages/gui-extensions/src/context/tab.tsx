@@ -11,6 +11,7 @@ import { useI18n } from "@opencode/ui/context/i18n"
 import { File } from "@opencode/session-ui/file"
 import { Markdown } from "@opencode/session-ui/markdown"
 import type { SessionMessageInfo } from "@opencode/client/promise"
+import { TokenUsage } from "@opencode/schema/token-usage"
 import { createKeyed, useExtension, type MountedSession } from "../sdk"
 import { catalogModel, syncCatalog } from "./catalog"
 import { fetchSessionExport, sessionExportFilename } from "./export"
@@ -135,6 +136,14 @@ export default function SessionContextTab(props: { session: MountedSession }) {
 
   const formatter = createMemo(() => createSessionContextFormatter(i18n.locale()))
 
+  const cache = createMemo(() => {
+    const tokens = info()?.tokens
+
+    if (!tokens) return
+
+    return { read: tokens.cache.read, input: TokenUsage.input(tokens), hit: TokenUsage.hit(tokens) }
+  })
+
   const cost = createMemo(() => {
     return usd().format(info()?.cost ?? 0)
   })
@@ -193,6 +202,11 @@ export default function SessionContextTab(props: { session: MountedSession }) {
       label: "stats.cacheTokens",
       value: () =>
         `${formatter().number(context()?.tokens.cache.read)} / ${formatter().number(context()?.tokens.cache.write)}`,
+    },
+    { label: "stats.hit", value: () => formatter().rate(cache()?.hit) },
+    {
+      label: "stats.cachedInput",
+      value: () => `${formatter().number(cache()?.read)} / ${formatter().number(cache()?.input)}`,
     },
     { label: "stats.userMessages", value: () => counts().user.toLocaleString(i18n.locale()) },
     { label: "stats.assistantMessages", value: () => counts().assistant.toLocaleString(i18n.locale()) },

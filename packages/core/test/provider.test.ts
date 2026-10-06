@@ -6,14 +6,14 @@ import { tmpdir } from "./fixture/tmpdir"
 import { Provider } from "@opencode/core/provider"
 
 describe("Provider", () => {
-  test("compiled bundles load compatible Responses entrypoints without installed packages", async () => {
+  test("compiled bundles load all custom provider entrypoints without installed packages", async () => {
     await using dir = await tmpdir()
     const entry = path.join(dir.path, "entry.ts")
     await Bun.write(
       entry,
       `import { Effect } from ${JSON.stringify(fileURLToPath(import.meta.resolve("effect")))}
 import { Provider } from ${JSON.stringify(fileURLToPath(import.meta.resolve("@opencode/core/provider")))}
-for (const specifier of ["@opencode/ai/providers/openai-compatible/responses", "@opencode/ai/providers/openai-compatible-responses"]) {
+for (const specifier of ["@opencode/ai/providers/openai-compatible", "@opencode/ai/providers/openai-compatible/responses", "@opencode/ai/providers/openai-compatible-responses", "@opencode/ai/providers/anthropic-compatible"]) {
   const module = await Effect.runPromise(Provider.loadPackage(specifier))
   const model = module.model("test", { baseURL: "http://127.0.0.1:4000/v1", apiKey: "fixture" })
   console.log(model.route.endpoint.baseURL)
@@ -41,7 +41,7 @@ for (const specifier of ["@opencode/ai/providers/openai-compatible/responses", "
     ])
     expect(stderr).toBe("")
     expect(code).toBe(0)
-    expect(stdout.trim().split("\n")).toEqual(["http://127.0.0.1:4000/v1", "http://127.0.0.1:4000/v1"])
+    expect(stdout.trim().split("\n")).toEqual(Array(4).fill("http://127.0.0.1:4000/v1"))
   }, 30_000)
 
   test("loads bundled native provider entrypoints", async () => {

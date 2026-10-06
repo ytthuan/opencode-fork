@@ -301,7 +301,7 @@ export function ComposerEditor(props: ComposerEditorProps) {
           </Show>
         </ScrollView>
 
-        <div class="flex h-11 items-center px-2">
+        <div data-slot="composer-toolbar" class="flex h-11 items-center px-2">
           <div
             class="flex shrink-0 items-center"
             aria-hidden={state.mode === "shell"}
@@ -335,12 +335,27 @@ export function ComposerEditor(props: ComposerEditorProps) {
             style={buttons()}
           >
             <div ref={controlsContent} class="flex h-full w-max min-w-full items-center gap-1">
+              <Tooltip placement="top" value={i18n.t("ui.promptInput.shell")}>
+                <IconButton
+                  data-action="composer-mode"
+                  type="button"
+                  icon={<Icon name="terminal" />}
+                  variant="ghost-muted"
+                  size="large"
+                  class="composer-mode"
+                  aria-label={i18n.t("ui.promptInput.shell")}
+                  disabled={view.draftOnly}
+                  onClick={props.controller.openShell}
+                />
+              </Tooltip>
               <Show when={view.agent} keyed>
                 {(control) => (
                   <ComposerEditorConfiguredSelect
                     title={i18n.t("ui.promptInput.chooseAgent")}
                     keybind={["Mod", "."]}
                     control={control}
+                    icon="subagent"
+                    class="composer-agent"
                   />
                 )}
               </Show>
@@ -353,7 +368,8 @@ export function ComposerEditor(props: ComposerEditorProps) {
                         title={i18n.t("ui.promptInput.chooseVariant")}
                         keybind={["Shift", "Mod", "D"]}
                         control={control}
-                        class={control.current() === "default" ? "composer-variant-default" : undefined}
+                        icon="brain"
+                        class={`composer-effort ${control.current() === "default" ? "composer-variant-default" : ""}`}
                       />
                     </Show>
                   )}
@@ -380,6 +396,7 @@ export function ComposerEditor(props: ComposerEditorProps) {
                   props.controller.restoreFocus()
                 }}
               >
+                <Icon name="terminal" />
                 {i18n.t("ui.promptInput.exitShell")}
                 <span class="hidden sm:block">
                   <Keybind keys={props.exitShellKeybind ?? ["ESC"]} variant="neutral" />
@@ -808,6 +825,7 @@ function ComposerEditorConfiguredSelect(props: {
   keybind?: string[]
   control: ComposerSelectControl
   model?: boolean
+  icon?: string
   class?: string
 }) {
   const current = () => props.control.current()
@@ -821,8 +839,15 @@ function ComposerEditorConfiguredSelect(props: {
       options={props.control.options()}
       current={current()}
       currentIcon={
-        <Show when={props.model && providerID()}>
-          {(id) => <ProviderModelIcon provider={{ id: id(), name: id() }} class="shrink-0 opacity-60" />}
+        <Show
+          when={props.icon}
+          fallback={
+            <Show when={props.model && providerID()}>
+              {(id) => <ProviderModelIcon provider={{ id: id(), name: id() }} class="shrink-0 opacity-60" />}
+            </Show>
+          }
+        >
+          {(name) => <Icon name={name()} class="shrink-0" />}
         </Show>
       }
       onSelect={props.control.onSelect}

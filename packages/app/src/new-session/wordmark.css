@@ -1,52 +1,36 @@
 [data-component="new-session-wordmark"] {
-  --icon-strong-base: var(--icon-base);
-  --wordmark-shimmer-opacity: 0.45;
-
-  .wordmark-shimmer {
-    --icon-base: white;
-    --icon-strong-base: white;
-    --icon-weak-base: transparent;
-
-    /* Blend above the base logo's opacity so the sweep only adds light in either theme. */
-    color: white;
-    mix-blend-mode: screen;
-    opacity: 0;
-    mask-image: linear-gradient(to right, transparent 40%, black 50%, transparent 60%);
-    mask-size: 300% 100%;
-    mask-repeat: no-repeat;
-    animation: new-session-wordmark-shimmer 800ms linear both;
+  [data-slot="wordmark-reveal"] {
+    display: flex;
+    justify-content: center;
+    height: clamp(88px, 16vh, 144px);
   }
-}
 
-[data-color-scheme="light"] [data-component="new-session-wordmark"] {
-  --icon-weak-base: color-mix(in srgb, var(--icon-base) 30%, transparent);
+  img {
+    display: block;
+    width: auto;
+    max-width: 100%;
+    height: 100%;
+    object-fit: contain;
+    border-radius: 16px;
+  }
+
+  .welcome-dark {
+    display: none;
+  }
 }
 
 [data-color-scheme="dark"] [data-component="new-session-wordmark"] {
-  /* Preserve the previous dark highlight strength: 0.16 × 0.7 × 0.6. */
-  --wordmark-shimmer-opacity: 0.0672;
-}
+  .welcome-light {
+    display: none;
+  }
 
-/* Oversizing the mask moves its highlight physically left to right, including in RTL. */
-@keyframes new-session-wordmark-shimmer {
-  0% {
-    mask-position: 100% 0;
-    opacity: 0;
-  }
-  20%,
-  80% {
-    opacity: var(--wordmark-shimmer-opacity);
-  }
-  100% {
-    mask-position: 0% 0;
-    opacity: 0;
+  .welcome-dark {
+    display: block;
   }
 }
 
-@media (prefers-reduced-motion: reduce) {
-  [data-component="new-session-wordmark"] {
-    .wordmark-shimmer {
-      animation: none;
-    }
+@media (max-height: 560px) {
+  [data-component="new-session-wordmark"] [data-slot="wordmark-reveal"] {
+    height: 72px;
   }
 }

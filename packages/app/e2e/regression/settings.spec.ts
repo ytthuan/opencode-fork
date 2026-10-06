@@ -463,7 +463,7 @@ test("worktrees follow inventory events, wait for session counts, and delete by 
     worktrees: () => inventory,
     onWorktreeRemove: (body) => {
       inventory.splice(
-        inventory.findIndex((item) => item.directory === (body as { directory: string }).directory),
+        inventory.findIndex((item) => item.directory === body.directory),
         1,
       )
     },
@@ -501,7 +501,7 @@ test("worktrees follow inventory events, wait for session counts, and delete by 
   inventory.push({ directory: discovered, strategy: "git" })
   await view.push([
     { id: "evt_settings_worktree_updated", created: Date.now(), type: "worktree.updated", data: { projectID } },
-  ] as OpenCodeEvent[])
+  ] satisfies OpenCodeEvent[])
   expect((await listed).ok()).toBe(true)
   await expect(settings.getByText(discovered, { exact: true })).toBeVisible()
   expect((await read).ok()).toBe(true)
@@ -582,7 +582,7 @@ test.describe("worktrees prefetch", () => {
 
   test("server Worktrees hover only prefetches metadata", async ({ page }) => {
     const { settings } = await open(page)
-    const calls = { projects: 0, worktrees: [] as string[], refreshes: [] as string[] }
+    const calls = { projects: 0, worktrees: Array<string>(), refreshes: Array<string>() }
     page.on("request", (request) => {
       if (new URL(request.url()).pathname === "/api/worktree/refresh")
         calls.refreshes.push(request.postDataJSON().projectID)
@@ -681,6 +681,83 @@ for (const row of ["configured", "disabled", "failure"] as const) {
     await expect(panel.getByRole("switch")).toHaveCount(0)
   })
 }
+
+test("custom providers edit multiple endpoints, limits, and reasoning without replacing the key", async ({ page }) => {
+  const source = {
+    name: "Local models",
+    package: "@opencode/ai/providers/openai-compatible/responses",
+    settings: { baseURL: "http://localhost:4000/v1", apiKey: "{env:TEST_PROVIDER_KEY}" },
+    headers: { Authorization: "Bearer {file:/tmp/test-provider-token}" },
+    models: { first: { name: "First model", limit: { context: 200000, input: 100000, output: 32000 } } },
+  }
+
+  const updates: unknown[] = []
+
+  const { settings } = await open(page, {
+    provider: {
+      all: [{ id: "local-custom", name: "Local models", models: { first: { id: "first", name: "First model" } } }],
+      connected: ["local-custom"],
+      default: {},
+    },
+    configEntries: [
+      {
+        type: "document",
+        info: {
+          providers: { "local-custom": { ...source, settings: { ...source.settings, apiKey: "synthetic-resolved" } } },
+        },
+        source: { providers: { "local-custom": source } },
+      },
+      { type: "directory", path: "/home/test/.config/opencode" },
+    ],
+    onConfigUpdate: (body) => updates.push(body),
+  })
+
+  await settings.getByRole("tab", { name: "Providers", exact: true }).click()
+  await settings.getByRole("button", { name: "Edit provider and models" }).click()
+  const editor = page.getByRole("dialog").filter({ has: page.getByRole("heading", { name: "Edit Local models" }) })
+  await expect(editor.getByRole("textbox", { name: "Provider ID", exact: true })).toHaveValue("local-custom")
+  await expect(editor.getByLabel("API key", { exact: true })).toHaveValue("")
+  const first = editor.getByRole("group", { name: "First model", exact: true })
+  await expect(first.getByLabel("Maximum input tokens", { exact: true })).toHaveValue("100000")
+  await editor.getByRole("button", { name: "Add model", exact: true }).click()
+  const added = editor.getByRole("group", { name: "Model 2", exact: true })
+  await added.getByRole("textbox", { name: "ID", exact: true }).fill("second")
+  await added.getByRole("textbox", { name: "Name", exact: true }).fill("Second model")
+  const second = editor.getByRole("group", { name: "Second model", exact: true })
+  await second.getByLabel("API format", { exact: true }).selectOption("messages")
+  await second.getByLabel("Base URL override (optional)").fill("http://localhost:4000/anthropic")
+  await second.getByLabel("Context window", { exact: true }).fill("272000")
+  await second.getByLabel("Maximum input tokens", { exact: true }).fill("144000")
+  await second.getByLabel("Maximum output tokens", { exact: true }).fill("128000")
+  await second.getByRole("checkbox", { name: "Medium", exact: true }).check()
+
+  const saved = page.waitForResponse(
+    (response) => response.url().endsWith("/api/experimental/config") && response.request().method() === "PATCH",
+  )
+
+  await editor.getByRole("button", { name: "Save", exact: true }).click()
+  expect((await saved).status()).toBe(204)
+  await expect(editor).toBeHidden()
+  expect(updates).toHaveLength(1)
+  expect(updates[0]).toMatchObject({
+    providers: {
+      "local-custom": {
+        settings: source.settings,
+        headers: source.headers,
+        models: {
+          first: { limit: { context: 200000, input: 100000, output: 32000 } },
+          second: {
+            package: "@opencode/ai/providers/anthropic-compatible",
+            settings: { baseURL: "http://localhost:4000/anthropic" },
+            limit: { context: 272000, input: 144000, output: 128000 },
+            variants_mode: "replace",
+            variants: [{ id: "medium", settings: { thinking: { type: "adaptive" }, effort: "medium" } }],
+          },
+        },
+      },
+    },
+  })
+})
 
 // Zen and the Console account share the id `opencode`: the provider comes from models.dev, the
 // integration carries the account sign-in.

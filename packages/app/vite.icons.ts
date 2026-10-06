@@ -10,12 +10,15 @@ export function icons(channel: string): Plugin {
     ...Object.entries({
       "favicon.ico": "icon.ico",
       "apple-touch-icon.png": "ios/AppIcon-60x60@3x.png",
-      "web-app-manifest-192x192.png": "android/mipmap-xxxhdpi/ic_launcher.png",
-      "web-app-manifest-512x512.png": "icon.png",
     }).map(([name, source]) => ({
       fileName: `${prefix}/${name}`,
       source: readFileSync(new URL(`../desktop/icons/${selected}/${source}`, import.meta.url)),
       type: name.endsWith(".ico") ? "image/x-icon" : "image/png",
+    })),
+    ...[192, 512].map((size) => ({
+      fileName: `${prefix}/web-app-manifest-${size}x${size}.png`,
+      source: readFileSync(new URL(`../ui/src/assets/favicon/web-app-manifest-${size}x${size}.png`, import.meta.url)),
+      type: "image/png",
     })),
     {
       fileName: "site.webmanifest",

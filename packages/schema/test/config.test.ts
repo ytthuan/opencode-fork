@@ -58,10 +58,14 @@ describe("Config.Entry", () => {
         type: "document",
         path: AbsolutePath.make("/project/opencode.json"),
         info: new Config.Info({
+          providers: { custom: new ConfigProvider.Info({ settings: { apiKey: "resolved" } }) },
           permissions: [
             { action: "shell", resource: "*", effect: "ask" },
             { action: "shell", resource: "git status", effect: "allow" },
           ],
+        }),
+        source: new Config.Info({
+          providers: { custom: new ConfigProvider.Info({ settings: { apiKey: "{env:KEY}" } }) },
         }),
       }),
       new Config.Document({ type: "document", info: new Config.Info({ shell: "/bin/zsh" }) }),
@@ -74,6 +78,10 @@ describe("Config.Entry", () => {
     expect(decoded).toEqual(entries)
     expect(decoded[0]).toBeInstanceOf(Config.Document)
     expect(decoded[1]).not.toHaveProperty("path")
+    expect(decoded[1]).not.toHaveProperty("source")
+    expect(decoded[0]?.type === "document" ? decoded[0].source?.providers?.custom.settings?.apiKey : undefined).toBe(
+      "{env:KEY}",
+    )
     expect(decoded.map((entry) => entry.type)).toEqual(["document", "document", "directory"])
     expect(decoded[0]?.type === "document" ? decoded[0].info.permissions : undefined).toEqual([
       { action: "shell", resource: "*", effect: "ask" },

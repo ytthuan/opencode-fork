@@ -2175,6 +2175,170 @@ export type ConfigEntry =
                   headers?: { [x: string]: string }
                   body?: { [x: string]: JsonValue }
                 }>
+                variants_mode?: "merge" | "replace"
+                cost?:
+                  | {
+                      tier?: { type: "context"; size: number }
+                      input: MoneyUSDPerMillionTokens
+                      output: MoneyUSDPerMillionTokens
+                      cache?: { read?: MoneyUSDPerMillionTokens; write?: MoneyUSDPerMillionTokens }
+                    }
+                  | Array<{
+                      tier?: { type: "context"; size: number }
+                      input: MoneyUSDPerMillionTokens
+                      output: MoneyUSDPerMillionTokens
+                      cache?: { read?: MoneyUSDPerMillionTokens; write?: MoneyUSDPerMillionTokens }
+                    }>
+                disabled?: boolean
+                limit?: { context?: number; input?: number; output?: number }
+              }
+            }
+          }
+        }
+        experimental?: {
+          portable_shell_scanner?: boolean
+          subagent_depth?: number
+          policies?: Array<{ action: "provider.use" | "permission"; resource: string; effect: "allow" | "deny" }>
+        }
+      }
+      source?: {
+        $schema?: string
+        shell?: string
+        model?: string | { providerID: string; model: string; variant?: string }
+        default_agent?: string
+        update?: "disable" | "notify" | "auto"
+        share?: "manual" | "auto" | "disabled"
+        enterprise?: { url?: string }
+        username?: string
+        permissions?: PermissionRuleset
+        agents?: {
+          [x: string]: {
+            model?: string | { providerID: string; model: string; variant?: string }
+            request?: { headers?: { [x: string]: string }; body?: { [x: string]: JsonValue } }
+            system?: string
+            description?: string
+            mode?: "subagent" | "primary" | "all"
+            hidden?: boolean
+            color?: string
+            steps?: number
+            disabled?: boolean
+            permissions?: PermissionRuleset
+          }
+        }
+        snapshots?: boolean
+        watcher?: { ignore?: Array<string> }
+        formatter?:
+          | boolean
+          | {
+              [x: string]: {
+                disabled?: boolean
+                command?: Array<string>
+                environment?: { [x: string]: string }
+                extensions?: Array<string>
+              }
+            }
+        lsp?:
+          | boolean
+          | {
+              [x: string]:
+                | { disabled: true }
+                | {
+                    command: Array<string>
+                    extensions?: Array<string>
+                    disabled?: boolean
+                    env?: { [x: string]: string }
+                    initialization?: { [x: string]: JsonValue }
+                  }
+            }
+        media?: {
+          image?: { auto_resize?: boolean; max_width?: number; max_height?: number; max_base64_bytes?: number }
+        }
+        tool_output?: { max_lines?: number; max_bytes?: number }
+        mcp?: {
+          timeout?: { startup?: number; catalog?: number; execution?: number }
+          servers?: {
+            [x: string]:
+              | {
+                  type: "local"
+                  command: Array<string>
+                  cwd?: string
+                  environment?: { [x: string]: string }
+                  disabled?: boolean
+                  codemode?: boolean
+                  timeout?: { startup?: number; catalog?: number; execution?: number }
+                  protocol?: McpProtocol
+                }
+              | {
+                  type: "remote"
+                  url: string
+                  headers?: { [x: string]: string }
+                  oauth?:
+                    | {
+                        client_id?: string
+                        client_secret?: string
+                        scope?: string
+                        callback_port?: number
+                        redirect_uri?: string
+                        auth_server_metadata_url?: string
+                      }
+                    | false
+                  disabled?: boolean
+                  codemode?: boolean
+                  timeout?: { startup?: number; catalog?: number; execution?: number }
+                  protocol?: McpProtocol
+                }
+          }
+        }
+        compaction?: { auto?: boolean; keep?: { tokens?: number }; buffer?: number }
+        skills?: Array<string>
+        commands?: {
+          [x: string]: {
+            template: string
+            description?: string
+            agent?: string
+            model?: string | { providerID: string; model: string; variant?: string }
+            subagent?: boolean
+            subtask?: boolean
+          }
+        }
+        instructions?: Array<string>
+        references?: {
+          [x: string]:
+            | string
+            | { repository: string; branch?: string; description?: string; hidden?: boolean }
+            | { path: string; description?: string; hidden?: boolean }
+        }
+        websearch?: false | { provider: "random" | (string & {}) }
+        plugins?: Array<string | { package: string; options?: { [x: string]: JsonValue } }>
+        worktree?: ConfigWorktree
+        warming?: boolean | { prompt?: string; interval?: string; duration?: string }
+        providers?: {
+          [x: string]: {
+            canonical?: string
+            name?: string
+            env?: Array<string>
+            package?: string
+            settings?: ConfigProviderSettings
+            headers?: { [x: string]: string }
+            body?: { [x: string]: JsonValue }
+            models?: {
+              [x: string]: {
+                modelID?: string
+                family?: string
+                name?: string
+                compatibility?: ModelCompatibility
+                package?: string
+                settings?: ConfigModelSettings
+                headers?: { [x: string]: string }
+                body?: { [x: string]: JsonValue }
+                capabilities?: ConfigModelCapabilities
+                variants?: Array<{
+                  id: string
+                  settings?: ConfigModelSettings
+                  headers?: { [x: string]: string }
+                  body?: { [x: string]: JsonValue }
+                }>
+                variants_mode?: "merge" | "replace"
                 cost?:
                   | {
                       tier?: { type: "context"; size: number }
@@ -6636,6 +6800,149 @@ export type ConfigGetOutput = Array<ConfigEntry>
 
 export type ConfigShellsOutput = Array<ConfigShellOption>
 
-export type ConfigUpdateInput = { readonly shell: { readonly shell: string | null }["shell"] }
+export type ConfigUpdateInput = {
+  readonly shell?: {
+    readonly shell?: string | null
+    readonly providers?: {
+      readonly [x: string]: {
+        readonly canonical?: string
+        readonly name?: string
+        readonly env?: ReadonlyArray<string>
+        readonly package?: string
+        readonly settings?: {
+          readonly timeout?: number | false
+          readonly headerTimeout?: number | false
+          readonly chunkTimeout?: number | false
+          readonly compaction?: { readonly type: "summary" } | { readonly type: "native" }
+          readonly transport?: "http" | "websocket"
+        } & { readonly [x: string]: JsonValue | null }
+        readonly headers?: { readonly [x: string]: string }
+        readonly body?: { readonly [x: string]: JsonValue }
+        readonly models?: {
+          readonly [x: string]: {
+            readonly modelID?: string
+            readonly family?: string
+            readonly name?: string
+            readonly compatibility?: {
+              readonly reasoningField?: "reasoning" | "reasoning_content" | "reasoning_text" | (string & {})
+              readonly requireReasoning?: boolean
+              readonly maxTokensField?: "max_completion_tokens" | "max_tokens"
+              readonly requireFinishReason?: boolean
+              readonly requireAssistantAfterTool?: boolean
+              readonly supportsPromptCacheKey?: boolean
+              readonly supportsThinkingBlockBinding?: boolean
+            }
+            readonly package?: string
+            readonly settings?: { readonly compaction?: { readonly type: "summary" } | { readonly type: "native" } } & {
+              readonly [x: string]: JsonValue | null
+            }
+            readonly headers?: { readonly [x: string]: string }
+            readonly body?: { readonly [x: string]: JsonValue }
+            readonly capabilities?: {
+              readonly tools?: boolean
+              readonly input?: ReadonlyArray<string>
+              readonly output?: ReadonlyArray<string>
+            }
+            readonly variants?: ReadonlyArray<{
+              readonly id: string
+              readonly settings?: {
+                readonly compaction?: { readonly type: "summary" } | { readonly type: "native" }
+              } & { readonly [x: string]: JsonValue | null }
+              readonly headers?: { readonly [x: string]: string }
+              readonly body?: { readonly [x: string]: JsonValue }
+            }>
+            readonly variants_mode?: "merge" | "replace"
+            readonly cost?:
+              | {
+                  readonly tier?: { readonly type: "context"; readonly size: number }
+                  readonly input: number
+                  readonly output: number
+                  readonly cache?: { readonly read?: number; readonly write?: number }
+                }
+              | ReadonlyArray<{
+                  readonly tier?: { readonly type: "context"; readonly size: number }
+                  readonly input: number
+                  readonly output: number
+                  readonly cache?: { readonly read?: number; readonly write?: number }
+                }>
+            readonly disabled?: boolean
+            readonly limit?: { readonly context?: number; readonly input?: number; readonly output?: number }
+          }
+        }
+      } | null
+    }
+  }["shell"]
+  readonly providers?: {
+    readonly shell?: string | null
+    readonly providers?: {
+      readonly [x: string]: {
+        readonly canonical?: string
+        readonly name?: string
+        readonly env?: ReadonlyArray<string>
+        readonly package?: string
+        readonly settings?: {
+          readonly timeout?: number | false
+          readonly headerTimeout?: number | false
+          readonly chunkTimeout?: number | false
+          readonly compaction?: { readonly type: "summary" } | { readonly type: "native" }
+          readonly transport?: "http" | "websocket"
+        } & { readonly [x: string]: JsonValue | null }
+        readonly headers?: { readonly [x: string]: string }
+        readonly body?: { readonly [x: string]: JsonValue }
+        readonly models?: {
+          readonly [x: string]: {
+            readonly modelID?: string
+            readonly family?: string
+            readonly name?: string
+            readonly compatibility?: {
+              readonly reasoningField?: "reasoning" | "reasoning_content" | "reasoning_text" | (string & {})
+              readonly requireReasoning?: boolean
+              readonly maxTokensField?: "max_completion_tokens" | "max_tokens"
+              readonly requireFinishReason?: boolean
+              readonly requireAssistantAfterTool?: boolean
+              readonly supportsPromptCacheKey?: boolean
+              readonly supportsThinkingBlockBinding?: boolean
+            }
+            readonly package?: string
+            readonly settings?: { readonly compaction?: { readonly type: "summary" } | { readonly type: "native" } } & {
+              readonly [x: string]: JsonValue | null
+            }
+            readonly headers?: { readonly [x: string]: string }
+            readonly body?: { readonly [x: string]: JsonValue }
+            readonly capabilities?: {
+              readonly tools?: boolean
+              readonly input?: ReadonlyArray<string>
+              readonly output?: ReadonlyArray<string>
+            }
+            readonly variants?: ReadonlyArray<{
+              readonly id: string
+              readonly settings?: {
+                readonly compaction?: { readonly type: "summary" } | { readonly type: "native" }
+              } & { readonly [x: string]: JsonValue | null }
+              readonly headers?: { readonly [x: string]: string }
+              readonly body?: { readonly [x: string]: JsonValue }
+            }>
+            readonly variants_mode?: "merge" | "replace"
+            readonly cost?:
+              | {
+                  readonly tier?: { readonly type: "context"; readonly size: number }
+                  readonly input: number
+                  readonly output: number
+                  readonly cache?: { readonly read?: number; readonly write?: number }
+                }
+              | ReadonlyArray<{
+                  readonly tier?: { readonly type: "context"; readonly size: number }
+                  readonly input: number
+                  readonly output: number
+                  readonly cache?: { readonly read?: number; readonly write?: number }
+                }>
+            readonly disabled?: boolean
+            readonly limit?: { readonly context?: number; readonly input?: number; readonly output?: number }
+          }
+        }
+      } | null
+    }
+  }["providers"]
+}
 
 export type ConfigUpdateOutput = void

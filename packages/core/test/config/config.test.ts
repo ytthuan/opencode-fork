@@ -1,10 +1,11 @@
 import path from "path"
 import fs from "fs/promises"
+import { parse } from "jsonc-parser"
 import { describe, expect, test } from "bun:test"
-import { Effect, Fiber, Layer, Logger, Schema, Stream } from "effect"
+import { Context, Effect, Fiber, Layer, Logger, Schema, Stream } from "effect"
 import { FastCheck } from "effect/testing"
 import { Config } from "@opencode/core/config"
-import { Directory, Document, Event, Info } from "@opencode/schema/config"
+import { Directory, Document, Event, Info, Patch } from "@opencode/schema/config"
 import { ConfigModel } from "@opencode/schema/config/model"
 import { ConfigProvider } from "@opencode/schema/config/provider"
 import { AppNodeBuilder } from "@opencode/core/effect/app-node-builder"
@@ -13,6 +14,8 @@ import { LayerNode } from "@opencode/util/effect/layer-node"
 import { Credential } from "@opencode/core/credential"
 import { ConfigV1 } from "../fixture/v1-config/config"
 import { ConfigNormalize } from "@opencode/core/config/normalize"
+import { ConfigWriter } from "@opencode/core/config/writer"
+import { FSUtil } from "@opencode/util/fs-util"
 import { Watcher } from "@opencode/core/filesystem/watcher"
 import { Bus } from "@opencode/core/bus"
 import { Global } from "@opencode/util/global"
@@ -88,6 +91,242 @@ const provider = {
 }
 
 describe("Config", () => {
+  it.live("persists provider replacements and removals in the highest-precedence global JSONC", () =>
+    Effect.acquireDisposable(Effect.promise(() => tmpdir())).pipe(
+      Effect.flatMap((tmp) => {
+        const global = path.join(tmp.path, "global")
+        const file = path.join(global, "opencode.jsonc")
+        const text = `{
+  // Keep global settings.
+  "shell": "/bin/zsh",
+  "update" : "notify", // Keep this formatting.
+  "providers": {
+    "custom": { "name": "Old", "models": { "stale": {} } },
+    // Keep the other provider.
+    "other" : { "name": "Untouched" },
+    "removed": { "name": "Remove" }
+  }
+}
+`
+        const lower = '{ "shell": "/bin/sh", "providers": { "lower": {} } }\n'
+        const project = '{ "shell": "project" }\n'
+        const custom = {
+          name: "Custom",
+          package: "aisdk:@ai-sdk/openai-compatible",
+          settings: { baseURL: "https://provider.example/v1" },
+          models: {
+            chat: {
+              modelID: "remote-chat",
+              package: "aisdk:@ai-sdk/openai",
+              limit: { context: 200000, input: 180000, output: 20000 },
+              variants: [
+                { id: "low", settings: { reasoningEffort: "low" } },
+                { id: "high", settings: { reasoningEffort: "high" } },
+              ],
+            },
+            fast: { limit: { context: 32000, input: 24000, output: 8000 } },
+          },
+        }
+        return Effect.promise(async () => {
+          await fs.mkdir(global)
+          await Promise.all([
+            fs.writeFile(file, text),
+            fs.writeFile(path.join(global, "opencode.json"), lower),
+            fs.writeFile(path.join(tmp.path, "opencode.jsonc"), project),
+          ])
+        }).pipe(
+          Effect.andThen(
+            Effect.gen(function* () {
+              const config = yield* Config.Service
+              yield* config.update!(
+                Schema.decodeUnknownSync(Patch)({
+                  providers: { custom, added: { name: "Added", models: { first: {}, second: {} } }, removed: null },
+                }),
+              )
+              const saved = yield* Effect.promise(() => fs.readFile(file, "utf8"))
+              expect(saved).toContain('  // Keep global settings.\n  "shell": "/bin/zsh",')
+              expect(saved).toContain('  "update" : "notify", // Keep this formatting.')
+              expect(saved).toContain('    // Keep the other provider.\n    "other" : { "name": "Untouched" }')
+              const doc = new Document({ type: "document", info: decodeInfo(parse(saved)) })
+              expect(doc?.info.providers?.custom).toEqual(decodeInfo({ providers: { custom } }).providers?.custom)
+              expect(doc?.info.providers?.custom?.models?.stale).toBeUndefined()
+              expect(doc?.info.providers?.added?.models).toHaveProperty("second")
+              expect(doc?.info.providers?.removed).toBeUndefined()
+              expect(doc?.info.providers?.other?.name).toBe("Untouched")
+              expect(yield* Effect.promise(() => fs.readFile(path.join(global, "opencode.json"), "utf8"))).toBe(lower)
+              expect(yield* Effect.promise(() => fs.readFile(path.join(tmp.path, "opencode.jsonc"), "utf8"))).toBe(
+                project,
+              )
+
+              yield* config.update!(Schema.decodeUnknownSync(Patch)({ shell: "/bin/bash" }))
+              expect((yield* Effect.promise(() => fs.readFile(file, "utf8"))).replace("/bin/bash", "/bin/zsh")).toBe(
+                saved,
+              )
+              yield* config.update!(Schema.decodeUnknownSync(Patch)({ shell: null, providers: { added: null } }))
+              const info = decodeInfo(parse(yield* Effect.promise(() => fs.readFile(file, "utf8"))))
+              expect(info?.shell).toBeUndefined()
+              expect(info?.providers?.added).toBeUndefined()
+              expect(info?.providers?.custom).toEqual(doc?.info.providers?.custom)
+              expect(info?.update).toBe("notify")
+              const before = yield* Effect.promise(() => fs.readFile(file, "utf8"))
+              yield* config.update!(Schema.decodeUnknownSync(Patch)({}))
+              yield* config.update!(Schema.decodeUnknownSync(Patch)({ providers: {} }))
+              yield* config.update!(Schema.decodeUnknownSync(Patch)({ providers: { absent: null } }))
+              expect(yield* Effect.promise(() => fs.readFile(file, "utf8"))).toBe(before)
+            }).pipe(Effect.provide(testLayer(tmp.path, global))),
+          ),
+          Effect.andThen(
+            Effect.gen(function* () {
+              const config = yield* Config.Service
+              const doc = (yield* config.entries()).find(
+                (entry): entry is Document => entry.type === "document" && entry.path === file,
+              )
+              expect(doc?.info.shell).toBeUndefined()
+              expect(doc?.info.providers?.custom).toEqual(decodeInfo({ providers: { custom } }).providers?.custom)
+              expect(doc?.info.providers?.other?.name).toBe("Untouched")
+            }).pipe(Effect.provide(testLayer(tmp.path, global))),
+          ),
+        )
+      }),
+    ),
+  )
+
+  it.live("refreshes every loaded location and serializes global writes without native watchers", () =>
+    Effect.acquireDisposable(Effect.promise(() => tmpdir())).pipe(
+      Effect.flatMap((tmp) =>
+        Effect.gen(function* () {
+          const global = path.join(tmp.path, "global")
+          const dirs = [path.join(tmp.path, "first"), path.join(tmp.path, "second")]
+          yield* Effect.promise(() => Promise.all(dirs.map((dir) => fs.mkdir(dir))))
+          const context = yield* Layer.build(
+            AppNodeBuilder.build(
+              LayerNode.group([
+                FSUtil.node,
+                Bus.node,
+                Global.node,
+                Credential.node,
+                WellKnown.node,
+                Watcher.node,
+                ConfigWriter.node,
+              ]),
+              [
+                Global.node.replace(Global.layerWith({ config: global, home: path.join(global, "home") })),
+                Credential.node.replace(emptyCredentialNode),
+                WellKnown.node.replace(emptyWellknownNode),
+                Watcher.node.replace(Watcher.configured({ enabled: false })),
+              ],
+            ),
+          )
+          const configs = yield* Effect.forEach(dirs, (dir) =>
+            Layer.build(
+              Config.layer({ project: false }).pipe(
+                Layer.provide(
+                  Layer.succeed(Location.Service, Location.Service.of(location({ directory: AbsolutePath.make(dir) }))),
+                ),
+              ),
+            ).pipe(Effect.provide(context), Effect.map(Context.get(Config.Service))),
+          )
+          const events = yield* Context.get(context, Bus.Service)
+            .subscribe(Event.Updated)
+            .pipe(Stream.take(2), Stream.runCollect, Effect.forkScoped({ startImmediately: true }))
+          const patch = Schema.decodeUnknownSync(Patch)({
+            providers: {
+              local: {
+                models: { chat: { variants: [{ id: "none", settings: { reasoningEffort: "none" } }] } },
+              },
+            },
+          })
+          yield* configs[0].update!(patch)
+          for (const config of configs) {
+            expect(Config.latest(yield* config.entries(), "providers")?.local?.models?.chat?.variants).toEqual(
+              patch.providers?.local?.models?.chat?.variants,
+            )
+          }
+          expect((yield* Fiber.join(events)).map((event) => String(event.location?.directory)).toSorted()).toEqual(dirs)
+          yield* Effect.all(
+            [
+              configs[0].update!(Schema.decodeUnknownSync(Patch)({ shell: "/bin/sh" })),
+              configs[1].update!(Schema.decodeUnknownSync(Patch)({ providers: { added: {} } })),
+            ],
+            { concurrency: "unbounded" },
+          )
+          const saved = parse(yield* Effect.promise(() => fs.readFile(path.join(global, "opencode.jsonc"), "utf8")))
+          expect(saved.shell).toBe("/bin/sh")
+          expect(saved.providers).toHaveProperty("local")
+          expect(saved.providers).toHaveProperty("added")
+          for (const config of configs) {
+            expect(Config.latest(yield* config.entries(), "shell")).toBe("/bin/sh")
+            expect(Config.latest(yield* config.entries(), "providers")).toHaveProperty("added")
+          }
+        }),
+      ),
+    ),
+  )
+
+  it.live("creates a global JSONC document and serializes concurrent partial config updates", () =>
+    Effect.acquireDisposable(Effect.promise(() => tmpdir())).pipe(
+      Effect.flatMap((tmp) =>
+        Effect.gen(function* () {
+          const config = yield* Config.Service
+          yield* config.update!(Schema.decodeUnknownSync(Patch)({}))
+          expect(yield* Effect.promise(() => Bun.file(path.join(tmp.path, "global", "opencode.jsonc")).exists())).toBe(
+            false,
+          )
+          yield* Effect.all(
+            [
+              config.update!(Schema.decodeUnknownSync(Patch)({ providers: { first: { models: { chat: {} } } } })),
+              config.update!(Schema.decodeUnknownSync(Patch)({ providers: { second: { models: { chat: {} } } } })),
+              config.update!(Schema.decodeUnknownSync(Patch)({ shell: "/bin/sh" })),
+            ],
+            { concurrency: "unbounded" },
+          )
+          const text = yield* Effect.promise(() => fs.readFile(path.join(tmp.path, "global", "opencode.jsonc"), "utf8"))
+          expect(JSON.parse(text)).toEqual({
+            shell: "/bin/sh",
+            providers: { first: { models: { chat: {} } }, second: { models: { chat: {} } } },
+          })
+          expect(text.endsWith("\n")).toBe(true)
+        }).pipe(Effect.provide(testLayer(tmp.path))),
+      ),
+    ),
+  )
+
+  for (const text of ["{ invalid", "[]", "null", '{ "providers": [] }', '{ "providers": null }']) {
+    it.live(`rejects config persistence into invalid document ${text}`, () =>
+      Effect.acquireDisposable(Effect.promise(() => tmpdir())).pipe(
+        Effect.flatMap((tmp) => {
+          const global = path.join(tmp.path, "global")
+          const file = path.join(global, "opencode.jsonc")
+          return Effect.promise(async () => {
+            await fs.mkdir(global)
+            await fs.writeFile(file, text)
+          }).pipe(
+            Effect.andThen(
+              Effect.gen(function* () {
+                const config = yield* Config.Service
+                const result = yield* config.update!(
+                  Schema.decodeUnknownSync(Patch)({
+                    shell: "/bin/bash",
+                    providers: { custom: { models: { chat: {} } } },
+                  }),
+                ).pipe(Effect.result)
+                expect(result._tag).toBe("Failure")
+                expect(yield* Effect.promise(() => fs.readFile(file, "utf8"))).toBe(text)
+              }).pipe(Effect.provide(testLayer(tmp.path, global))),
+            ),
+          )
+        }),
+      ),
+    )
+  }
+
+  test("validates provider patch model limits and variants at the contract boundary", () => {
+    const decode = Schema.decodeUnknownSync(Patch)
+    expect(() => decode({ providers: { custom: { models: { chat: { limit: { context: "large" } } } } } })).toThrow()
+    expect(() => decode({ providers: { custom: { models: { chat: { variants: [{ settings: {} }] } } } } })).toThrow()
+    expect(() => decode({ providers: { custom: [] } })).toThrow()
+  })
+
   it.live("excludes home-level claude and agents directories when global is disabled", () =>
     Effect.acquireDisposable(Effect.promise(() => tmpdir())).pipe(
       Effect.flatMap((tmp) => {
@@ -1017,6 +1256,13 @@ describe("Config", () => {
                     `{
                       // Ignored reference: {file:missing.txt}
                       "username": "user-{env:OPENCODE_TEST_MISSING}",
+                      "providers": {
+                        "referenced": {
+                          "settings": { "baseURL": "https://example.com/v1", "apiKey": "{env:OPENCODE_TEST_MCP_TOKEN}" },
+                          "headers": { "Authorization": "Bearer {file:token.txt}" }
+                        },
+                        "nested": { "settings": { "apiKey": "{file:{env:OPENCODE_TEST_MISSING}token.txt}" } }
+                      },
                       "mcp": {
                         "servers": {
                           "remote": {
@@ -1038,6 +1284,29 @@ describe("Config", () => {
                 const config = yield* Config.Service
                 const document = (yield* config.entries()).find((entry) => entry.type === "document")
                 expect(document?.info.username).toBe("user-")
+                expect(document?.info.providers?.referenced.settings?.apiKey).toBe("secret")
+                expect(document?.info.providers?.nested.settings?.apiKey).toBe('file\n"token"')
+                expect(document?.source?.providers).not.toHaveProperty("nested")
+                expect(document?.source?.providers?.referenced.settings?.apiKey).toBe("{env:OPENCODE_TEST_MCP_TOKEN}")
+                expect(document?.source?.providers?.referenced.headers).toEqual({
+                  Authorization: `Bearer {file:${path.join(tmp.path, "token.txt")}}`,
+                })
+                const source = document?.source?.providers?.referenced
+                if (!source || !config.update) throw new Error("Expected editable provider source")
+                yield* config.update({ providers: { referenced: source } })
+                const saved = yield* Effect.promise(() =>
+                  fs.readFile(path.join(tmp.path, "global", "opencode.jsonc"), "utf8"),
+                )
+                expect(saved).toContain("{env:OPENCODE_TEST_MCP_TOKEN}")
+                expect(saved).toContain(`{file:${path.join(tmp.path, "token.txt")}}`)
+                const loaded = (yield* config.entries()).find(
+                  (entry) =>
+                    entry.type === "document" && entry.path === path.join(tmp.path, "global", "opencode.jsonc"),
+                )
+                expect(loaded?.type === "document" ? loaded.info.providers?.referenced.headers : undefined).toEqual({
+                  Authorization: 'Bearer file\n"token"',
+                })
+                expect(saved).not.toContain("secret")
                 const remote = document?.info.mcp?.servers?.remote
                 expect(remote?.type).toBe("remote")
                 if (remote?.type !== "remote") return

@@ -17,6 +17,7 @@ import { ConfigVariable } from "./config/variable.js"
 import { ConfigNormalize } from "./config/normalize.js"
 import { ConfigDiscovery } from "./config/discovery.js"
 import { ConfigWatch } from "./config/watch.js"
+import { ConfigWriter } from "./config/writer.js"
 import { WellKnown } from "./wellknown.js"
 
 export function latest<K extends keyof Info>(entries: readonly Entry[], key: K): Info[K] | undefined {
@@ -97,8 +98,9 @@ export const layer = (options?: Options) =>
       const credentials = yield* Credential.Service
       const globalService = yield* Global.Service
       const wellknown = yield* WellKnown.Service
+      const writer = yield* ConfigWriter.Service
+      const revision = writer.revision(globalService.config)
       const reloadLock = Semaphore.makeUnsafe(1)
-      const updateLock = Semaphore.makeUnsafe(1)
       const decodeOptions = { errors: "all", onExcessProperty: "ignore", propertyOrder: "original" } as const
       const decodeInfo = Schema.decodeUnknownOption(Info, decodeOptions)
       const parseInfo = Effect.fn("Config.parseInfo")(function* (text: string, source: string) {
@@ -133,13 +135,43 @@ export const layer = (options?: Options) =>
         })
       })
 
+      const document = Effect.fnUntraced(function* (
+        text: string,
+        resolved: string,
+        origin: string,
+        directory: string,
+        filepath?: string,
+      ) {
+        const info = yield* parseInfo(resolved, origin)
+        if (!info) return
+        const source = text === resolved ? undefined : ((yield* parseInfo(text, origin)) ?? new Info({}))
+        return new Document({
+          type: "document",
+          path: filepath ? AbsolutePath.make(filepath) : undefined,
+          info,
+          source:
+            source &&
+            Option.getOrUndefined(
+              decodeInfo({
+                ...source,
+                providers:
+                  source.providers &&
+                  Object.fromEntries(
+                    Object.entries(source.providers).flatMap(([id, provider]) => {
+                      const value = Option.getOrUndefined(ConfigVariable.rebase(provider, directory))
+                      return value === undefined ? [] : [[id, value]]
+                    }),
+                  ),
+              }),
+            ),
+        })
+      })
+
       const loadFile = Effect.fnUntraced(function* (filepath: string) {
         const text = yield* fs.readFileStringSafe(filepath)
         if (text === undefined) return
         const substituted = yield* ConfigVariable.substitute({ type: "path", path: filepath, text })
-        const info = yield* parseInfo(substituted, filepath)
-        if (!info) return
-        return new Document({ type: "document", path: AbsolutePath.make(filepath), info })
+        return yield* document(text, substituted, filepath, path.dirname(filepath), filepath)
       })
 
       const loadWellknownEntry = Effect.fnUntraced(function* (entry: WellKnown.Entry) {
@@ -164,10 +196,7 @@ export const layer = (options?: Options) =>
             dir: entry.origin,
             text: JSON.stringify(config),
             env: variables,
-          }).pipe(
-            Effect.flatMap((text) => parseInfo(text, entry.origin)),
-            Effect.map((info) => (info ? new Document({ type: "document", info }) : undefined)),
-          ),
+          }).pipe(Effect.flatMap((text) => document(JSON.stringify(config), text, entry.origin, entry.origin))),
         ).pipe(Effect.map((documents) => documents.filter((document) => document !== undefined)))
       })
 
@@ -203,16 +232,17 @@ export const layer = (options?: Options) =>
               Effect.orDie,
             )
           : []
+        const inline = options?.content
         const content =
-          options?.content !== undefined
+          inline !== undefined
             ? yield* ConfigVariable.substitute({
                 type: "virtual",
                 source: "OPENCODE_CONFIG_CONTENT",
                 dir: location.directory,
-                text: options.content,
+                text: inline,
               }).pipe(
-                Effect.flatMap((text) => parseInfo(text, "OPENCODE_CONFIG_CONTENT")),
-                Effect.map((info) => (info ? [new Document({ type: "document", info })] : [])),
+                Effect.flatMap((text) => document(inline, text, "OPENCODE_CONFIG_CONTENT", location.directory)),
+                Effect.map((entry) => (entry ? [entry] : [])),
                 Effect.orDie,
               )
             : []
@@ -325,27 +355,57 @@ export const layer = (options?: Options) =>
         Effect.forkScoped({ startImmediately: true }),
       )
       yield* reloadLock.withPermit(reconcile(initial))
+      if (initial.global) {
+        const changed = yield* writer.register(
+          initial.global,
+          revision,
+          reload().pipe(
+            Effect.provideService(FSUtil.Service, fs),
+            Effect.provideService(Global.Service, globalService),
+            Effect.provideService(Location.Service, location),
+            Effect.catchCause((cause) => Effect.logError("failed to refresh global config", { cause })),
+          ),
+        )
+        // Close the gap between the first read and registering for global writes.
+        if (changed) yield* reload()
+      }
 
       const update = Effect.fn("Config.update")(
         function* (patch: Patch) {
+          if (patch.shell === undefined && !Object.keys(patch.providers ?? {}).length) return
           const directory = initial.global ?? AbsolutePath.make(globalService.config)
           const candidates = ConfigDiscovery.names.map((name) => path.join(directory, name))
-          const filepath = (yield* Effect.filter(candidates, fs.isFile)).at(-1) ?? path.join(directory, "opencode.jsonc")
+          const filepath =
+            (yield* Effect.filter(candidates, fs.isFile)).at(-1) ?? path.join(directory, "opencode.jsonc")
           const text = (yield* fs.readFileStringSafe(filepath)) ?? "{}\n"
           const updated = yield* Effect.try({
-            try: () =>
-              applyEdits(
-                text,
-                modify(text, ["shell"], patch.shell ?? undefined, {
-                  formattingOptions: { tabSize: 2, insertSpaces: true },
-                }),
-              ),
+            try: () => {
+              const errors: ParseError[] = []
+              const doc: unknown = parse(text, errors, { allowTrailingComma: true })
+              if (errors.length || !doc || typeof doc !== "object" || Array.isArray(doc))
+                throw new Error("Cannot update a malformed configuration document")
+              if (
+                Object.keys(patch.providers ?? {}).length &&
+                "providers" in doc &&
+                (doc.providers === null || typeof doc.providers !== "object" || Array.isArray(doc.providers))
+              )
+                throw new Error("Cannot update a non-object providers configuration")
+              // Formatting insertions and removals would rewrite untouched neighboring JSONC.
+              const shell =
+                patch.shell === undefined
+                  ? text
+                  : applyEdits(text, modify(text, ["shell"], patch.shell ?? undefined, {}))
+              return Object.entries(patch.providers ?? {}).reduce(
+                (text, [id, info]) => applyEdits(text, modify(text, ["providers", id], info ?? undefined, {})),
+                shell,
+              )
+            },
             catch: (cause) => new FSUtil.FileSystemError({ method: "config.update", cause }),
           })
           yield* fs.writeWithDirs(filepath, updated.endsWith("\n") ? updated : `${updated}\n`)
-          yield* requestReload
+          yield* writer.refresh(directory)
         },
-        (effect) => updateLock.withPermit(effect),
+        (effect) => writer.lock.withPermit(effect),
       )
 
       return Service.of({
@@ -367,7 +427,16 @@ export function configured(options?: Options) {
   return makeLocationNode({
     service: Service,
     layer: layer(options),
-    deps: [Watcher.node, Bus.node, FSUtil.node, Global.node, Location.node, Credential.node, WellKnown.node],
+    deps: [
+      Watcher.node,
+      Bus.node,
+      FSUtil.node,
+      Global.node,
+      Location.node,
+      Credential.node,
+      WellKnown.node,
+      ConfigWriter.node,
+    ],
   })
 }
 

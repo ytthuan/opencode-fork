@@ -2,7 +2,7 @@ export * as ConfigVariable from "./variable.js"
 
 import os from "os"
 import path from "path"
-import { Effect } from "effect"
+import { Effect, Option } from "effect"
 import { FSUtil } from "@opencode/util/fs-util"
 import { InvalidError } from "../v1/config/error.js"
 
@@ -21,6 +21,23 @@ type SubstituteInput = ParseSource & {
   text: string
   missing?: "error" | "empty"
   env?: Record<string, string>
+}
+
+/** Anchor file references; nested variable paths need their original document and cannot be relocated safely. */
+export function rebase(value: unknown, directory: string): Option.Option<unknown> {
+  if (typeof value === "string") {
+    if (/\{file:[^{}]*\{/.test(value)) return Option.none()
+    return Option.some(
+      value.replace(/\{file:([^{}]+)\}/g, (token, name: string) =>
+        path.isAbsolute(name) || name.startsWith("~/") ? token : `{file:${path.resolve(directory, name)}}`,
+      ),
+    )
+  }
+  if (Array.isArray(value)) return Option.all(value.map((item) => rebase(item, directory)))
+  if (!value || typeof value !== "object") return Option.some(value)
+  return Option.all(
+    Object.entries(value).map(([key, item]) => rebase(item, directory).pipe(Option.map((value) => [key, value]))),
+  ).pipe(Option.map(Object.fromEntries))
 }
 
 /** Apply {env:VAR} and {file:path} substitutions to config text. */

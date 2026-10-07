@@ -36,6 +36,7 @@ import { SessionIdentityHeader } from "./session-identity-header"
 import { SessionReviewToggle } from "./header/session-header-actions"
 import { SessionRunningMenu } from "./header/session-running-menu"
 import { createAnimatedPresence } from "@/runtime/animated-presence"
+import { SessionGoalBar } from "./goal-bar"
 import { createTimelineCache } from "./timeline/cache"
 
 export function SessionScreenView(props: { session: SessionModel }) {
@@ -276,6 +277,7 @@ function SessionScreenContent(props: {
 
   const sessionPanelContent = () => (
     <>
+      <SessionGoalBar session={session.data.info()} />
       <ComposerDropzone
         active={composer.drop.active()}
         input={composer.drop.input()}

@@ -1,6 +1,7 @@
 export * as SessionEvent from "./session-event.js"
 
 import { Schema } from "effect"
+import { SessionGoal } from "./session-goal.js"
 import { optional } from "./schema.js"
 import { Event } from "./event.js"
 import { FinishReason } from "./llm.js"
@@ -45,6 +46,17 @@ const options = {
     version: 1,
   },
 } as const
+export const GoalChanged = Event.durable({
+  type: "session.goal.changed",
+  ...options,
+  schema: {
+    ...Base,
+    previousID: Schema.NullOr(Schema.String),
+    previousRevision: NonNegativeInt,
+    change: SessionGoal.Change,
+  },
+})
+
 export const Created = Event.durable({
   type: "session.created",
   ...options,
@@ -650,6 +662,7 @@ export namespace RevertEvent {
 }
 
 export const Definitions = Event.inventory(
+  GoalChanged,
   Created,
   AgentSelected,
   ModelSelected,

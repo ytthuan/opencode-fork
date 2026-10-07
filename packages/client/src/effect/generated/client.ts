@@ -22,6 +22,12 @@ import type {
   PluginCheckOutput,
   PluginUpdateInput,
   PluginUpdateOutput,
+  SessionGoalInput,
+  SessionGoalOutput,
+  SessionCreateGoalInput,
+  SessionCreateGoalOutput,
+  SessionUpdateGoalInput,
+  SessionUpdateGoalOutput,
   SessionListInput,
   SessionListOutput,
   SessionStatsInput,
@@ -357,6 +363,34 @@ const adaptGroupPlugin = (raw: RawClient["server.plugin"]) => ({
   check: EndpointPluginCheck(raw),
   update: EndpointPluginUpdate(raw),
 })
+
+const EndpointSessionGoal = (raw: RawClient["server.session"]) => (input: SessionGoalInput) =>
+  preserveEffect<SessionGoalOutput>()(
+    raw["session.goal"]({ params: { sessionID: input["sessionID"] } }).pipe(Effect.mapError(mapClientError)),
+  )
+
+const EndpointSessionCreateGoal = (raw: RawClient["server.session"]) => (input: SessionCreateGoalInput) =>
+  preserveEffect<SessionCreateGoalOutput>()(
+    raw["session.createGoal"]({
+      params: { sessionID: input["sessionID"] },
+      payload: { objective: input["objective"], maxRounds: input["maxRounds"] },
+    }).pipe(Effect.mapError(mapClientError)),
+  )
+
+const EndpointSessionUpdateGoal = (raw: RawClient["server.session"]) => (input: SessionUpdateGoalInput) =>
+  preserveEffect<SessionUpdateGoalOutput>()(
+    raw["session.updateGoal"]({
+      params: { sessionID: input["sessionID"] },
+      payload: {
+        id: input["id"],
+        revision: input["revision"],
+        action: input["action"],
+        objective: input["objective"],
+        maxRounds: input["maxRounds"],
+        reason: input["reason"],
+      },
+    }).pipe(Effect.mapError(mapClientError)),
+  )
 
 const EndpointSessionList = (raw: RawClient["server.session"]) => (input?: SessionListInput) =>
   preserveEffect<SessionListOutput>()(
@@ -760,6 +794,9 @@ const EndpointSessionView = (raw: RawClient["server.session"]) => (input: Sessio
   )
 
 const adaptGroupSession = (raw: RawClient["server.session"]) => ({
+  goal: EndpointSessionGoal(raw),
+  createGoal: EndpointSessionCreateGoal(raw),
+  updateGoal: EndpointSessionUpdateGoal(raw),
   list: EndpointSessionList(raw),
   stats: EndpointSessionStats(raw),
   create: EndpointSessionCreate(raw),

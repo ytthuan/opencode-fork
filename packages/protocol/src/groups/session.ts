@@ -1,3 +1,4 @@
+import { SessionGoal } from "@opencode/schema/session-goal"
 import { SessionMessage } from "@opencode/schema/session-message"
 import { SessionInbox } from "@opencode/schema/session-inbox"
 import { PromptInput } from "@opencode/schema/prompt-input"
@@ -176,6 +177,36 @@ export const makeSessionGroup = <I extends HttpApiMiddleware.AnyId, S, FormI ext
   formLocationMiddleware: Context.Key<FormI, FormS>,
 ) =>
   HttpApiGroup.make("server.session")
+    .add(
+      HttpApiEndpoint.get("session.goal", "/api/session/:sessionID/goal", {
+        params: { sessionID: Session.ID },
+        success: Schema.NullOr(SessionGoal.Info),
+        error: SessionNotFoundError,
+      }).annotateMerge(OpenApi.annotations({ identifier: "session.goal", summary: "Get persistent goal" })),
+    )
+    .add(
+      HttpApiEndpoint.post("session.createGoal", "/api/session/:sessionID/goal", {
+        params: { sessionID: Session.ID },
+        payload: SessionGoal.Create,
+        success: SessionGoal.Info,
+        error: [SessionNotFoundError, ConflictError],
+      }).annotateMerge(
+        OpenApi.annotations({ identifier: "session.createGoal", summary: "Explicitly create a persistent goal" }),
+      ),
+    )
+    .add(
+      HttpApiEndpoint.patch("session.updateGoal", "/api/session/:sessionID/goal", {
+        params: { sessionID: Session.ID },
+        payload: SessionGoal.Update,
+        success: Schema.NullOr(SessionGoal.Info),
+        error: [SessionNotFoundError, ConflictError],
+      }).annotateMerge(
+        OpenApi.annotations({
+          identifier: "session.updateGoal",
+          summary: "Update, pause, resume, complete, block, or clear a goal",
+        }),
+      ),
+    )
     .add(
       HttpApiEndpoint.get("session.list", "/api/session", {
         query: SessionsQuery,

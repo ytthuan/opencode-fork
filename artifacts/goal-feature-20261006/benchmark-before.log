@@ -1,0 +1,6 @@
+$ bun run script/benchmark-location.ts --iterations "10" "/private/tmp/opencode-v2-goal"
+Location: /private/tmp/opencode-v2-goal
+Iterations: 10
+first        mean 298.00 ms  min 298.00 ms  p50 298.00 ms  p95 298.00 ms  max 298.00 ms
+cached       mean 0.01 ms  min 0.00 ms  p50 0.00 ms  p95 0.03 ms  max 0.03 ms
+cold         mean 42.41 ms  min 38.72 ms  p50 40.90 ms  p95 49.06 ms  max 49.06 ms

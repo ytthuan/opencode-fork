@@ -35,11 +35,18 @@ it.live("preserves imported parentID through HTTP import, read, and parent filte
     const id = Session.ID.create()
     const imported = Schema.decodeUnknownSync(SessionResponse)(
       yield* request("/api/experimental/session/import", {
-        info: { ...parent.data, id, parentID: parent.data.id, title: "Imported child" },
+        info: {
+          ...parent.data,
+          id,
+          parentID: parent.data.id,
+          title: "Imported child",
+          goal: { id: "goal-import", revision: 4, objective: "Retain goal", status: "paused", rounds: 2, maxRounds: 7 },
+        },
         messages: [],
       }),
     )
     const read = Schema.decodeUnknownSync(SessionResponse)(yield* request(`/api/session/${id}`))
+    expect(read.data.goal).toMatchObject({ id: "goal-import", revision: 4, status: "paused", rounds: 2 })
     const children = Schema.decodeUnknownSync(SessionsResponse)(
       yield* request(`/api/session?parentID=${parent.data.id}`),
     )

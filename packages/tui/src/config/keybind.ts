@@ -119,6 +119,7 @@ export const Definitions = {
   "session.tab.reopen": keybind("ctrl+shift+t", "Reopen last closed session tab"),
   "session.timeline": keybind("<leader>g", "Show session timeline"),
   "session.fork": keybind("none", "Fork session from message"),
+  "session.goal": keybind("none", "Manage the persistent session goal"),
   "session.rename": keybind("ctrl+r", "Rename session"),
   "session.delete": keybind("ctrl+d", "Delete session"),
   "session.share": keybind("none", "Share current session"),

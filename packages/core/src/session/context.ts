@@ -17,6 +17,7 @@ import { ReferenceInstructions } from "../reference/instructions.js"
 import { SkillInstructions } from "../skill/instructions.js"
 import { Tool } from "../tool.js"
 import { AgentNotFoundError } from "./error.js"
+import { SessionGoal } from "./goal.js"
 import { SessionHistory } from "./history.js"
 import { SessionProviderContext } from "./provider-context.js"
 import { InstructionEntry } from "./instruction-entry.js"
@@ -168,11 +169,19 @@ const layer = Layer.effect(
         selection.instructions,
         SessionProviderContext.provenance(model) ?? "local",
       )
+      const goal = yield* SessionGoal.get(db, selection.session.id).pipe(Effect.orDie)
       return {
         session: selection.session,
         agent: selection.agent,
         model,
-        initial: history.initial,
+        initial: [
+          history.initial,
+          goal
+            ? `Persistent goal (${goal.status}): ${goal.objective}\nGoal revision: ${goal.revision}. Automatic continuation ${SessionGoal.isArmed(selection.session.id, goal) ? "armed" : "disarmed"}. Ordinary prompts never create or resume goals. A paused or blocked goal stays stopped until the user explicitly resumes. Use goal tools to inspect progress, edit, complete, or block; do not claim completion while work remains.`
+            : "",
+        ]
+          .filter(Boolean)
+          .join("\n\n"),
         messages: history.entries.map((entry) => entry.message),
         tools: selection.tools,
       }

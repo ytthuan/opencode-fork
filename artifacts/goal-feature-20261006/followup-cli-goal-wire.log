@@ -1,0 +1,9 @@
+bun test v1.4.2 (744846f84)
+
+test/session-goal.test.ts:
+(pass) CLI goal controls parse user flags and send the current goal identity and revision [28101.05ms]
+
+ 1 pass
+ 0 fail
+ 18 expect() calls
+Ran 1 test across 1 file. [28.41s]

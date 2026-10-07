@@ -16,6 +16,12 @@ import type {
   PluginCheckOutput,
   PluginUpdateInput,
   PluginUpdateOutput,
+  SessionGoalInput,
+  SessionGoalOutput,
+  SessionCreateGoalInput,
+  SessionCreateGoalOutput,
+  SessionUpdateGoalInput,
+  SessionUpdateGoalOutput,
   SessionListInput,
   SessionListOutput,
   SessionStatsInput,
@@ -533,6 +539,48 @@ export function make(options: ClientOptions) {
         ),
     },
     session: {
+      goal: (input: SessionGoalInput, requestOptions?: RequestOptions) =>
+        request<SessionGoalOutput>(
+          {
+            method: "GET",
+            path: `/api/session/${encodeURIComponent(input.sessionID)}/goal`,
+            successStatus: 200,
+            declaredStatuses: [400, 401, 404],
+            empty: false,
+          },
+          requestOptions,
+        ),
+      createGoal: (input: SessionCreateGoalInput, requestOptions?: RequestOptions) =>
+        request<SessionCreateGoalOutput>(
+          {
+            method: "POST",
+            path: `/api/session/${encodeURIComponent(input.sessionID)}/goal`,
+            body: { objective: input["objective"], maxRounds: input["maxRounds"] },
+            successStatus: 200,
+            declaredStatuses: [400, 401, 404, 409],
+            empty: false,
+          },
+          requestOptions,
+        ),
+      updateGoal: (input: SessionUpdateGoalInput, requestOptions?: RequestOptions) =>
+        request<SessionUpdateGoalOutput>(
+          {
+            method: "PATCH",
+            path: `/api/session/${encodeURIComponent(input.sessionID)}/goal`,
+            body: {
+              id: input["id"],
+              revision: input["revision"],
+              action: input["action"],
+              objective: input["objective"],
+              maxRounds: input["maxRounds"],
+              reason: input["reason"],
+            },
+            successStatus: 200,
+            declaredStatuses: [400, 401, 404, 409],
+            empty: false,
+          },
+          requestOptions,
+        ),
       list: (input?: SessionListInput, requestOptions?: RequestOptions) =>
         request<SessionListOutput>(
           {

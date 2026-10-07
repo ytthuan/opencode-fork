@@ -1,3 +1,4 @@
+import type { SessionGoal } from "@opencode/schema/session-goal"
 import { sqliteTable, text, integer, index, primaryKey, real, uniqueIndex } from "drizzle-orm/sqlite-core"
 import { sql } from "drizzle-orm"
 import { directoryColumn, pathColumn } from "../database/path.js"
@@ -42,6 +43,7 @@ export const SessionTable = sqliteTable(
     summary_files: integer(),
     summary_diffs: text({ mode: "json" }).$type<FileDiff.LegacyInfo[]>(),
     metadata: text({ mode: "json" }).$type<Session.Metadata>(),
+    goal: text({ mode: "json" }).$type<SessionGoal.Info>(),
     cost: real().notNull().default(0),
     tokens_input: integer().notNull().default(0),
     tokens_output: integer().notNull().default(0),

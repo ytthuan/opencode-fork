@@ -58,6 +58,27 @@ export const SessionHandler = HttpApiBuilder.group(Api, "server.session", (handl
       )
 
     return handlers
+      .handle("session.goal", (ctx) =>
+        session.goal(ctx.params.sessionID).pipe(Effect.catchTag("Session.NotFoundError", missingSession)),
+      )
+      .handle("session.createGoal", (ctx) =>
+        session.createGoal({ ...ctx.payload, sessionID: ctx.params.sessionID }).pipe(
+          Effect.catchTag("Session.NotFoundError", missingSession),
+          Effect.catchTag(
+            "Session.GoalConflict",
+            (error) => new ConflictError({ resource: ctx.params.sessionID, message: error.message }),
+          ),
+        ),
+      )
+      .handle("session.updateGoal", (ctx) =>
+        session.updateGoal({ ...ctx.payload, sessionID: ctx.params.sessionID }).pipe(
+          Effect.catchTag("Session.NotFoundError", missingSession),
+          Effect.catchTag(
+            "Session.GoalConflict",
+            (error) => new ConflictError({ resource: ctx.params.sessionID, message: error.message }),
+          ),
+        ),
+      )
       .handle(
         "session.list",
         Effect.fn(function* (ctx) {

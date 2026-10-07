@@ -418,6 +418,17 @@ const Root = Spec.make(typeof OPENCODE_CLI_NAME === "string" ? OPENCODE_CLI_NAME
     Spec.make("session", {
       description: "Manage sessions",
       commands: [
+        Spec.make("goal", {
+          description: "Get or explicitly manage a persistent session goal",
+          params: {
+            ...ServerParams,
+            sessionID: Argument.string("sessionID"),
+            action: Flag.choice("action", ["get", "create", "update", "pause", "resume", "complete", "block", "clear"]).pipe(Flag.withDefault("get")),
+            objective: Flag.string("objective").pipe(Flag.optional),
+            maxRounds: Flag.integer("max-rounds").pipe(Flag.optional),
+            reason: Flag.string("reason").pipe(Flag.optional),
+          },
+        }),
         Spec.make("list", {
           description: "List top-level sessions in the current project, newest first",
           params: {

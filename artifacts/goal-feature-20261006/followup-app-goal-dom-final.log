@@ -1,9 +1,0 @@
-bun test v1.4.2 (744846f84)
-
-test-browser/session-goal.test.ts:
-(pass) app goal controls use the persistent lifecycle contract [453.27ms]
-
- 1 pass
- 0 fail
- 1 expect() calls
-Ran 1 test across 1 file. [519.00ms]

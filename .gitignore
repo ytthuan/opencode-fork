@@ -3,7 +3,7 @@ node_modules
 .worktrees
 .sst
 .env
-.env.local
+.env*.local
 .idea
 .vscode
 .codex
@@ -35,5 +35,33 @@ UPCOMING_CHANGELOG.md
 RELEASE_REVIEW.md
 logs/
 *.bun-build
-tsconfig.tsbuildinfo
+*.tsbuildinfo
 /artifacts/
+
+# Build and deployment caches
+.vite/
+.astro/
+.wrangler/
+__pycache__/
+*.pyc
+
+# Test output
+coverage/
+*.lcov
+test-results/
+playwright-report/
+
+# Logs and performance profiles
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+*.cpuprofile
+*.heapsnapshot
+
+# VS Code extension build, test runtime, and package output
+/sdks/vscode/out/
+/sdks/vscode/.vscode-test/
+/sdks/vscode/*.vsix
